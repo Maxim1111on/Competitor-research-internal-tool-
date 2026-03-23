@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hypnotiic Media — Internal</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+:root{--bg:#F5F3EF;--surface:#FFFFFF;--surface2:#EFEDE8;--border:#E0DBD3;--border2:#C4BDB3;--text:#18160F;--text2:#6A6258;--text3:#A09890;--purple:#6B5CE7;--purple-l:#EDE9FF;--green:#18A06E;--green-l:#E3F7EF;--blue:#2563EB;--blue-l:#EFF6FF;--coral:#E05A3A;--coral-l:#FEF0EC;--amber:#D97706;--amber-l:#FFFBEB;--red:#DC2626;--red-l:#FEF2F2;--pink:#DB2777;--pink-l:#FDF2F8;--r:10px;--rl:16px;--sh:0 1px 3px rgba(0,0,0,.07);--sh-md:0 4px 16px rgba(0,0,0,.1)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
+input,select,textarea,button{font-family:inherit;font-size:13px}
+h1{font-size:22px;font-weight:600}h2{font-size:17px;font-weight:600}h3{font-size:14px;font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 18px;border-radius:var(--r);font-weight:500;cursor:pointer;border:none;transition:all .12s;white-space:nowrap;font-family:inherit;font-size:13px;line-height:1}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:var(--text);color:#fff}.btn-primary:hover:not(:disabled){background:#333}.btn-primary:active:not(:disabled){transform:scale(.98)}
+.btn-secondary{background:var(--surface);color:var(--text);border:1.5px solid var(--border2)}.btn-secondary:hover:not(:disabled){background:var(--surface2)}
+.btn-ghost{background:transparent;color:var(--text2);border:1.5px solid var(--border)}.btn-ghost:hover:not(:disabled){background:var(--surface2);color:var(--text)}
+.btn-danger{background:var(--red-l);color:var(--red);border:1.5px solid #fca5a5}.btn-danger:hover:not(:disabled){background:#fee2e2}
+.btn-success{background:var(--green-l);color:var(--green);border:1.5px solid #6ee7b7}
+.btn-sm{padding:6px 12px;font-size:12px}.btn-icon{padding:7px;border-radius:8px;line-height:0}
+.input{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:var(--r);background:var(--surface);color:var(--text);outline:none;transition:border-color .12s}
+.input:focus{border-color:var(--text)}.input::placeholder{color:var(--text3)}
+textarea.input{resize:vertical;min-height:70px}
+.label{font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.field{margin-bottom:14px}.field:last-child{margin-bottom:0}
+.card{background:var(--surface);border-radius:var(--rl);border:1px solid var(--border);padding:20px 22px;margin-bottom:12px}
+.card:last-child{margin-bottom:0}
+.nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.tabs{display:flex;gap:2px;background:var(--surface2);padding:3px;border-radius:11px;margin-bottom:22px;flex-wrap:wrap}
+.tab{padding:7px 14px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);font-family:inherit;transition:all .12s;white-space:nowrap}
+.tab.active{background:var(--surface);color:var(--text);box-shadow:var(--sh)}
+.wrap{max-width:880px;margin:0 auto;padding:28px 16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:680px){.grid2,.grid3,.grid4{grid-template-columns:1fr}.wrap{padding:16px 12px}}
+.pill{display:inline-flex;align-items:center;gap:4px;background:var(--surface2);color:var(--text2);font-size:11px;padding:3px 9px;border-radius:20px;margin:2px;border:1px solid var(--border)}
+.pill-x{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;line-height:1;padding:0;display:flex;align-items:center}
+.pill-x:hover{color:var(--red)}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em}
+.b-purple{background:var(--purple-l);color:var(--purple)}.b-green{background:var(--green-l);color:var(--green)}.b-blue{background:var(--blue-l);color:var(--blue)}.b-amber{background:var(--amber-l);color:var(--amber)}.b-red{background:var(--red-l);color:var(--red)}.b-gray{background:var(--surface2);color:var(--text2)}.b-pink{background:var(--pink-l);color:var(--pink)}
+.alert{padding:10px 14px;border-radius:var(--r);font-size:12px;margin-bottom:14px;border:1px solid;line-height:1.5}
+.alert-warn{background:var(--amber-l);border-color:#fcd34d;color:#78350f}
+.alert-info{background:var(--blue-l);border-color:#93c5fd;color:#1e3a8a}
+.alert-success{background:var(--green-l);border-color:#6ee7b7;color:#064e3b}
+.alert-error{background:var(--red-l);border-color:#fca5a5;color:#7f1d1d}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;font-weight:600;color:var(--text3);padding:8px 10px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.05em}
+td{padding:10px;border-bottom:1px solid var(--surface2);color:var(--text);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}tr:hover td{background:var(--bg)}
+.dropzone{border:2px dashed var(--border2);border-radius:var(--rl);padding:32px;text-align:center;background:var(--bg);transition:all .15s;cursor:pointer}
+.dropzone.over{border-color:var(--purple);background:var(--purple-l)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;padding:20px;z-index:200;overflow-y:auto}
+.modal{background:var(--surface);border-radius:var(--rl);width:100%;max-width:560px;margin:auto;box-shadow:var(--sh-md)}
+.modal-head{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);border-radius:var(--rl) var(--rl) 0 0;z-index:1}
+.modal-body{padding:22px;max-height:72vh;overflow-y:auto}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.stepper{display:flex;align-items:flex-start;margin-bottom:28px}
+.step-item{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+.step-item:not(:last-child)::after{content:'';position:absolute;top:13px;left:calc(50% + 15px);right:calc(-50% + 15px);height:2px;background:var(--border)}
+.step-item.done:not(:last-child)::after{background:var(--text)}
+.step-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:2px solid var(--border);background:var(--surface);color:var(--text2);z-index:1;position:relative;transition:all .2s}
+.step-item.done .step-dot{background:var(--text);border-color:var(--text);color:#fff}
+.step-item.active .step-dot{border-color:var(--text);color:var(--text)}
+.step-label{font-size:10px;color:var(--text3);margin-top:5px;text-align:center;font-weight:500;max-width:60px}
+.step-item.active .step-label,.step-item.done .step-label{color:var(--text2)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);color:#fff;padding:10px 18px;border-radius:var(--r);font-size:13px;font-weight:500;z-index:999;box-shadow:var(--sh-md);pointer-events:none;animation:toastIn .2s ease}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .2s ease}
+hr{border:none;border-top:1px solid var(--border);margin:18px 0}
+.section-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:12px}
+.score-bar{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;display:inline-block;vertical-align:middle}
+.score-fill{height:100%;border-radius:2px;transition:width .4s}
+.ig-metric-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px}
+.ig-metric-label{font-size:11px;color:var(--text3);font-weight:500;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.ig-metric-value{font-size:28px;font-weight:600;color:var(--text);line-height:1.1;margin-bottom:2px}
+.ig-metric-sub{font-size:11px;color:var(--text3)}
+.ig-bar-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--surface2)}
+.ig-bar-row:last-child{border-bottom:none}
+.ig-bar-label{font-size:12px;color:var(--text2);min-width:110px}
+.ig-bar-track{flex:1;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.ig-bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.ig-bar-val{font-size:12px;font-weight:500;color:var(--text);min-width:60px;text-align:right}
+.post-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.post-thumb{aspect-ratio:1;border-radius:8px;background:var(--surface2);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;position:relative;overflow:hidden;cursor:pointer;transition:transform .1s;text-decoration:none}
+.post-thumb:hover{transform:scale(1.02)}
+.post-views{font-size:18px;font-weight:700;color:var(--text)}
+.post-type-badge{position:absolute;top:7px;right:7px}
+.empty{text-align:center;padding:40px 20px}
+.loading-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.fc{display:flex;align-items:center}.fb{display:flex;align-items:center;justify-content:space-between}
+.g6{gap:6px}.g8{gap:8px}.g10{gap:10px}.g12{gap:12px}
+.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+.mono{font-family:'DM Mono',monospace}
+.text-sm{font-size:12px}.text-xs{font-size:11px}.muted{color:var(--text2)}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.log-box{background:#0f1117;border-radius:var(--r);padding:12px 14px;height:110px;overflow-y:auto;font-family:'DM Mono',monospace;font-size:11px}
+.log-line{color:#4ade80;margin-bottom:2px}.log-warn{color:#fbbf24;margin-bottom:2px}.log-err{color:#f87171;margin-bottom:2px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// SUPABASE INIT
+// ═══════════════════════════════════════════════════════════════
+const { createClient } = supabase;
+const SB = createClient(
+  'https://dvknzfhsgnywevhmsgns.supabase.co',
+  'sb_publishable_ehMDG_4ohfbN0XDjkvB8_A_yIwdtOgM'
+);
+
+// ═══════════════════════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════════════════════
+const COLORS=[{color:'#6B5CE7',light:'#EDE9FF',name:'Purple'},{color:'#18A06E',light:'#E3F7EF',name:'Green'},{color:'#2563EB',light:'#EFF6FF',name:'Blue'},{color:'#E05A3A',light:'#FEF0EC',name:'Coral'},{color:'#D97706',light:'#FFFBEB',name:'Amber'},{color:'#DB2777',light:'#FDF2F8',name:'Pink'}];
+const PKGS=['Starter','Growth','Dominant Expert System'];
+const FREQS=['Daily','6x per week','5x per week','4x per week','3x per week','2x per week','Weekly'];
+const PLATFORMS=['Instagram','TikTok','YouTube Shorts','Facebook','LinkedIn'];
+
+let USER=null;
+let CLIENTS=[];
+let A={screen:'loading',clientId:null,tab:'overview',modal:null,md:{},wiz:{step:0,data:{}},disc:{},anal:{},rep:{}};
+
+// API keys stay in localStorage — sensitive, device-specific
+function getKeys(){ try{ return JSON.parse(localStorage.getItem('hm_keys')||'{}'); }catch(e){ return {}; } }
+function saveKeys(k){ localStorage.setItem('hm_keys',JSON.stringify(k)); }
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+function fmt(n){ return Number(n||0).toLocaleString(); }
+function fmtK(n){ n=Number(n||0); return n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?(n/1000).toFixed(1)+'K':String(n); }
+function cc(){ return CLIENTS.find(c=>c.id===A.clientId)||null; }
+function set(u){ Object.assign(A,u); render(); }
+
+function toast(msg,type='ok'){
+  document.querySelectorAll('.toast').forEach(e=>e.remove());
+  const el=document.createElement('div');
+  el.className='toast';
+  el.style.background=type==='err'?'var(--red)':type==='warn'?'var(--amber)':'var(--text)';
+  el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),3200);
+}
+
+function addLog(msg,type=''){
+  const box=document.querySelector('.log-box');
+  if(!box) return;
+  const d=document.createElement('div');
+  d.className=type?'log-'+type:'log-line';
+  d.textContent='['+new Date().toLocaleTimeString('en-GB')+'] '+msg;
+  box.appendChild(d); box.scrollTop=box.scrollHeight;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SUPABASE DATA FUNCTIONS
+// ═══════════════════════════════════════════════════════════════
+async function loadClients(){
+  const {data,error}=await SB.from('clients').select('*').order('created_at',{ascending:true});
+  if(error){ console.error(error); return; }
+  CLIENTS=data||[];
+}
+
+async function saveClient(client){
+  const payload={
+    id:client.id, name:client.name, email:client.email||'',
+    ig_handle:client.ig_handle||'', niche:client.niche||'',
+    target:client.target||'', pillars:client.pillars||[],
+    hashtags:client.hashtags||[], keywords:client.keywords||[],
+    platforms:client.platforms||[], posting_freq:client.posting_freq||'',
+    package:client.package||'', notes:client.notes||'',
+    color:client.color||'', light:client.light||'',
+    competitors:client.competitors||[], reports:client.reports||[],
+    owner_id:USER.id
+  };
+  const existing=CLIENTS.find(c=>c.id===client.id);
+  if(existing){
+    const {error}=await SB.from('clients').update(payload).eq('id',client.id);
+    if(error) throw error;
+  } else {
+    const {error}=await SB.from('clients').insert(payload);
+    if(error) throw error;
+  }
+  await loadClients();
+}
+
+async function deleteClientDB(id){
+  const {error}=await SB.from('clients').delete().eq('id',id);
+  if(error) throw error;
+  await loadClients();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER ENGINE
+// ═══════════════════════════════════════════════════════════════
+function render(){
+  const root=document.getElementById('root');
+  if(!root) return;
+  document.querySelectorAll('.overlay,.toast').forEach(e=>e.remove());
+  if(A.screen==='loading') root.innerHTML=rLoading();
+  else if(A.screen==='login') root.innerHTML=rLogin();
+  else if(A.screen==='dash') root.innerHTML=rDash();
+  else if(A.screen==='client') root.innerHTML=rClient();
+  else if(A.screen==='wizard') root.innerHTML=rWizard();
+  else if(A.screen==='settings') root.innerHTML=rSettings();
+  if(A.modal){ const ov=document.createElement('div'); ov.className='overlay'; ov.innerHTML=getModal(); ov.onclick=e=>{if(e.target===ov)closeModal()}; document.body.appendChild(ov); }
+  bind();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SCREENS
+// ═══════════════════════════════════════════════════════════════
+function rLoading(){
+  return `<div class="loading-screen">
+    <div style="width:40px;height:40px;background:var(--text);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px">H</div>
+    <div style="font-size:13px;color:var(--text2)">Loading...</div>
+  </div>`;
+}
+
+function rLogin(){
+  return `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px">
+    <div style="width:100%;max-width:340px">
+      <div style="text-align:center;margin-bottom:24px">
+        <div style="width:44px;height:44px;background:var(--text);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;margin:0 auto 12px">H</div>
+        <h1 style="font-size:18px;margin-bottom:4px">Hypnotiic Media</h1>
+        <p class="muted text-sm">Internal tools — authorised access only</p>
+      </div>
+      <div class="card">
+        <div class="field"><label class="label">Email</label><input class="input" id="l-email" type="email" placeholder="you@hypnotiicmedia.com"></div>
+        <div class="field"><label class="label">Password</label><input class="input" id="l-pass" type="password" placeholder="••••••••"></div>
+        <div id="l-err" class="alert alert-error" style="display:none">Incorrect email or password</div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px" onclick="doLogin()" id="l-btn">Sign in</button>
+        <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:10px">Contact Max to get access</p>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function doLogin(){
+  const email=document.getElementById('l-email')?.value?.trim()||'';
+  const pass=document.getElementById('l-pass')?.value||'';
+  if(!email||!pass) return;
+  const btn=document.getElementById('l-btn');
+  if(btn){ btn.disabled=true; btn.innerHTML='<span class="spin"></span>Signing in...'; }
+  const {data,error}=await SB.auth.signInWithPassword({email,password:pass});
+  if(error){
+    const err=document.getElementById('l-err');
+    if(err) err.style.display='block';
+    if(btn){ btn.disabled=false; btn.innerHTML='Sign in'; }
+    return;
+  }
+  USER=data.user;
+  await loadClients();
+  set({screen:'dash'});
+}
+
+async function doLogout(){
+  await SB.auth.signOut();
+  USER=null; CLIENTS=[];
+  set({screen:'login'});
+}
+
+// ─── NAV ──────────────────────────────────────────────────────
+function rNav(crumb){
+  return `<nav class="nav">
+    <div class="fc g10">
+      <div style="width:30px;height:30px;background:var(--text);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px">H</div>
+      <span style="font-weight:600;font-size:14px">Hypnotiic Media</span>
+      <span style="font-size:10px;color:var(--text3);background:var(--surface2);padding:2px 7px;border-radius:20px">Internal</span>
+      ${crumb?'<span style="color:var(--border2)">/</span><span style="font-size:13px;color:var(--text2)">'+crumb+'</span>':''}
+    </div>
+    <div class="fc g8">
+      <span style="font-size:11px;color:var(--text3)">${USER?.email||''}</span>
+      <button class="btn btn-ghost btn-sm" onclick="set({screen:'settings'})">Settings</button>
+      <button class="btn btn-ghost btn-sm" onclick="set({screen:'dash',clientId:null})">Dashboard</button>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign out</button>
+    </div>
+  </nav>`;
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────
+function rDash(){
+  const cards=CLIENTS.map(function(c){
+    return '<button onclick="set({screen:\'client\',clientId:\''+c.id+'\',tab:\'overview\'})"'
+      +' style="text-align:left;padding:20px;border-radius:16px;border:1.5px solid '+c.color+'35;background:'+c.light+';cursor:pointer;width:100%;transition:all .15s;display:block"'
+      +' onmouseover="this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 6px 20px rgba(0,0,0,.09)\'"'
+      +' onmouseout="this.style.transform=\'none\';this.style.boxShadow=\'none\'">'
+      +'<div class="fc g8 mb12"><div class="dot" style="background:'+c.color+'"></div>'
+      +'<span class="badge" style="background:'+c.color+'20;color:'+c.color+'">'+(c.package||'Active')+'</span></div>'
+      +'<div style="font-size:18px;font-weight:600;margin-bottom:4px">'+c.name+'</div>'
+      +'<div style="font-size:12px;color:var(--text2);margin-bottom:10px">'+c.niche+'</div>'
+      +'<div class="fc g12">'
+      +'<span style="font-size:11px;color:var(--text3)">'+((c.competitors||[]).filter(function(x){return x.status==='approved';}).length)+' competitors</span>'
+      +'<span style="font-size:11px;color:var(--text3)">'+((c.pillars||[]).length)+' pillars</span>'
+      +'<span style="font-size:11px;color:var(--text3)">'+(c.posting_freq||'—')+'</span>'
+      +'</div></button>';
+  }).join('');
+
+  return '<div class="fade-up">'+rNav()
+    +'<div class="wrap">'
+    +'<div class="fb mb20">'
+    +'<div><h1 style="margin-bottom:3px">Dashboard</h1><p class="muted text-sm">'+CLIENTS.length+' active client'+(CLIENTS.length!==1?'s':'')+'</p></div>'
+    +'<button class="btn btn-primary" onclick="startWiz()">+ Add new client</button>'
+    +'</div>'
+    +'<div class="grid3">'
+    +cards
+    +'<button onclick="startWiz()" style="padding:20px;border-radius:16px;border:2px dashed var(--border);background:none;cursor:pointer;color:var(--text3);font-size:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:130px;font-family:inherit;transition:all .15s" onmouseover="this.style.borderColor=\'var(--border2)\';this.style.color=\'var(--text2)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--text3)\'"><span style="font-size:24px;opacity:.4">+</span>Add new client</button>'
+    +'</div>'
+    +(!getKeys().apify?'<div class="alert alert-info mt16">Add your Apify API key in Settings to enable real competitor discovery. <button class="btn btn-secondary btn-sm" style="margin-left:8px" onclick="set({screen:\'settings\'})">Settings →</button></div>':'')
+    +'</div></div>';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// WIZARD
+// ═══════════════════════════════════════════════════════════════
+const STEPS=[{l:'Basic info'},{l:'Niche'},{l:'Content'},{l:'Search terms'},{l:'Review'}];
+
+function startWiz(){
+  A.wiz={step:0,data:{name:'',email:'',ig_handle:'',niche:'',target:'',pillars:[],hashtags:[],keywords:[],platforms:[],posting_freq:'4x per week',package:'Starter',notes:'',color:COLORS[0].color,light:COLORS[0].light}};
+  set({screen:'wizard'});
+}
+
+function rWizard(){
+  const {step,data}=A.wiz;
+  const stepper=STEPS.map(function(s,i){
+    const cls=i<step?'done':i===step?'active':'';
+    return '<div class="step-item '+cls+'"><div class="step-dot">'+(i<step?'✓':i+1)+'</div><div class="step-label">'+s.l+'</div></div>';
+  }).join('');
+  let content='';
+  if(step===0) content=wStep0(data);
+  if(step===1) content=wStep1(data);
+  if(step===2) content=wStep2(data);
+  if(step===3) content=wStep3(data);
+  if(step===4) content=wStep4(data);
+  return '<div class="fade-up">'+rNav('New client')
+    +'<div class="wrap" style="max-width:600px">'
+    +'<div class="fc g8 mb20"><button class="btn btn-ghost btn-sm" onclick="set({screen:\'dash\'})">← Cancel</button><h2>Add new client</h2></div>'
+    +'<div class="stepper">'+stepper+'</div>'
+    +'<div class="card fade-up"><h3 style="font-size:16px;margin-bottom:18px">'+STEPS[step].l+'</h3>'+content+'</div>'
+    +'<div class="fb mt16">'
+    +'<button class="btn btn-secondary btn-sm" onclick="'+(step===0?'set({screen:\'dash\'})':'wizBack()')+'" style="min-width:90px">'+(step===0?'Cancel':'← Back')+'</button>'
+    +'<button class="btn btn-primary btn-sm" id="wiz-next-btn" onclick="'+(step===4?'wizSubmit()':'wizNext()')+'" style="min-width:'+(step===4?'140px':'90px')+'">'+(step===4?'Create client →':'Next →')+'</button>'
+    +'</div></div></div>';
+}
+
+function wStep0(d){
+  const cp=COLORS.map(function(c,i){ return '<button type="button" onclick="setWizColor('+i+')" style="width:26px;height:26px;border-radius:50%;background:'+c.color+';border:'+(d.color===c.color?'3px solid var(--text)':'2px solid transparent')+';cursor:pointer;transition:border .12s" title="'+c.name+'"></button>'; }).join('');
+  return '<div class="field"><label class="label">Client name *</label><input class="input" id="w-name" value="'+d.name+'" placeholder="e.g. Patrick" oninput="A.wiz.data.name=this.value"></div>'
+    +'<div class="field"><label class="label">Client email</label><input class="input" id="w-email" type="email" value="'+d.email+'" placeholder="client@example.com" oninput="A.wiz.data.email=this.value"></div>'
+    +'<div class="field"><label class="label">Instagram handle (for reports)</label><input class="input" id="w-ig" value="'+(d.ig_handle||'')+'" placeholder="username (no @)" oninput="A.wiz.data.ig_handle=this.value.trim().replace(\'@\',\'\')"><div style="font-size:11px;color:var(--text3);margin-top:4px">Used to pull their posts for monthly reports</div></div>'
+    +'<div class="field"><label class="label">Package</label><select class="input" onchange="A.wiz.data.package=this.value">'+PKGS.map(function(p){ return '<option '+(d.package===p?'selected':'')+'>'+p+'</option>'; }).join('')+'</select></div>'
+    +'<div class="field" style="margin-bottom:0"><label class="label">Colour</label><div class="fc g8">'+cp+'</div></div>';
+}
+
+function wStep1(d){
+  return '<div class="field"><label class="label">Niche — be very specific *</label><input class="input" id="w-niche" value="'+d.niche+'" placeholder="e.g. Business coaching for male entrepreneurs aged 25–45" oninput="A.wiz.data.niche=this.value"><div style="font-size:11px;color:var(--text3);margin-top:4px">The more specific, the better the competitor matching</div></div>'
+    +'<div class="field" style="margin-bottom:0"><label class="label">Target audience</label><textarea class="input" rows="3" placeholder="Who do they serve? Age, goals, pain points..." oninput="A.wiz.data.target=this.value">'+d.target+'</textarea></div>';
+}
+
+function wStep2(d){
+  const pillHtml=(d.pillars||[]).map(function(p){ return '<span class="pill">'+p+'<button class="pill-x" onclick="rmPillar(\''+p+'\')">×</button></span>'; }).join('');
+  return '<div class="field"><label class="label">Content pillars</label>'
+    +'<div style="min-height:30px;margin-bottom:8px">'+(pillHtml||'<span style="font-size:12px;color:var(--text3)">None yet</span>')+'</div>'
+    +'<div class="fc g8"><input class="input" id="pillar-inp" placeholder="e.g. Mindset, Sales, Leadership" style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addPillar()}"><button class="btn btn-secondary btn-sm" onclick="addPillar()">Add</button></div></div>'
+    +'<div class="field"><label class="label">Posting frequency</label><select class="input" onchange="A.wiz.data.posting_freq=this.value">'+FREQS.map(function(f){ return '<option '+(d.posting_freq===f?'selected':'')+'>'+f+'</option>'; }).join('')+'</select></div>'
+    +'<div class="field" style="margin-bottom:0"><label class="label">Platforms</label><div class="fc g12" style="flex-wrap:wrap">'+PLATFORMS.map(function(pl){ return '<label class="fc g8" style="cursor:pointer;font-size:13px"><input type="checkbox" '+(((d.platforms||[]).includes(pl))?'checked':'')+' onchange="togglePlat(\''+pl+'\')" style="width:15px;height:15px;cursor:pointer"> '+pl+'</label>'; }).join('')+'</div></div>';
+}
+
+function wStep3(d){
+  const hashHtml=(d.hashtags||[]).map(function(h){ return '<span class="pill">#'+h+'<button class="pill-x" onclick="rmHashtag(\''+h+'\')">×</button></span>'; }).join('');
+  const kwHtml=(d.keywords||[]).map(function(k){ return '<span class="pill">'+k+'<button class="pill-x" onclick="rmKeyword(\''+k+'\')">×</button></span>'; }).join('');
+  return '<p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6">Hashtags and keywords are both used to find competitor accounts on Instagram. Use both for the best results.</p>'
+    +'<div class="field"><label class="label">Hashtags (no # needed)</label>'
+    +'<div style="min-height:30px;margin-bottom:8px">'+(hashHtml||'<span style="font-size:12px;color:var(--text3)">None yet</span>')+'</div>'
+    +'<div class="fc g8"><input class="input" id="hash-inp" placeholder="businesscoach, entrepreneurmindset..." style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addHashtag()}"><button class="btn btn-secondary btn-sm" onclick="addHashtag()">Add</button></div></div>'
+    +'<div class="field" style="margin-bottom:0"><label class="label">Keywords</label>'
+    +'<div style="min-height:30px;margin-bottom:8px">'+(kwHtml||'<span style="font-size:12px;color:var(--text3)">None yet</span>')+'</div>'
+    +'<div class="fc g8"><input class="input" id="kw-inp" placeholder="business coach, entrepreneur mentor..." style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addKeyword()}"><button class="btn btn-secondary btn-sm" onclick="addKeyword()">Add</button></div>'
+    +'<div style="font-size:11px;color:var(--text3);margin-top:4px">Keywords search Instagram bios and account names</div></div>';
+}
+
+function wStep4(d){
+  const pillsHtml=(d.pillars||[]).map(function(p){ return '<span class="pill">'+p+'</span>'; }).join('')||'<span style="font-size:12px;color:var(--text3)">None</span>';
+  const hashHtml=(d.hashtags||[]).map(function(h){ return '<span class="pill">#'+h+'</span>'; }).join('')||'—';
+  const kwHtml=(d.keywords||[]).map(function(k){ return '<span class="pill">'+k+'</span>'; }).join('')||'—';
+  return '<div style="background:'+d.light+';border-radius:12px;padding:16px;margin-bottom:16px;border:1.5px solid '+d.color+'35">'
+    +'<div class="fc g8 mb8"><div class="dot" style="background:'+d.color+'"></div><span class="badge" style="background:'+d.color+'20;color:'+d.color+'">'+d.package+'</span></div>'
+    +'<div style="font-size:18px;font-weight:600;margin-bottom:3px">'+(d.name||'Client name')+'</div>'
+    +'<div style="font-size:12px;color:var(--text2)">'+(d.niche||'No niche set')+'</div>'
+    +(d.ig_handle?'<div style="font-size:11px;color:'+d.color+';margin-top:5px">@'+d.ig_handle+'</div>':'')
+    +'</div>'
+    +'<div class="grid2 mb12"><div><div class="section-head">Posting</div><span style="font-size:13px">'+d.posting_freq+'</span></div><div><div class="section-head">Package</div><span style="font-size:13px">'+d.package+'</span></div></div>'
+    +'<hr><div class="mb12"><div class="section-head">Content pillars</div>'+pillsHtml+'</div>'
+    +'<div class="mb12"><div class="section-head">Hashtags</div>'+hashHtml+'</div>'
+    +'<div><div class="section-head">Keywords</div>'+kwHtml+'</div>';
+}
+
+function setWizColor(i){ A.wiz.data.color=COLORS[i].color; A.wiz.data.light=COLORS[i].light; render(); }
+function addPillar(){ const i=document.getElementById('pillar-inp'); if(!i) return; const v=i.value.trim(); if(!v) return; if(!A.wiz.data.pillars.includes(v)) A.wiz.data.pillars.push(v); i.value=''; render(); setTimeout(function(){ document.getElementById('pillar-inp')?.focus(); },40); }
+function rmPillar(v){ A.wiz.data.pillars=A.wiz.data.pillars.filter(function(x){ return x!==v; }); render(); }
+function addHashtag(){ const i=document.getElementById('hash-inp'); if(!i) return; const v=i.value.trim().replace('#','').replace(/\s/g,''); if(!v) return; if(!A.wiz.data.hashtags.includes(v)) A.wiz.data.hashtags.push(v); i.value=''; render(); setTimeout(function(){ document.getElementById('hash-inp')?.focus(); },40); }
+function rmHashtag(v){ A.wiz.data.hashtags=A.wiz.data.hashtags.filter(function(x){ return x!==v; }); render(); }
+function addKeyword(){ const i=document.getElementById('kw-inp'); if(!i) return; const v=i.value.trim(); if(!v) return; if(!A.wiz.data.keywords.includes(v)) A.wiz.data.keywords.push(v); i.value=''; render(); setTimeout(function(){ document.getElementById('kw-inp')?.focus(); },40); }
+function rmKeyword(v){ A.wiz.data.keywords=A.wiz.data.keywords.filter(function(x){ return x!==v; }); render(); }
+function togglePlat(pl){ const ps=A.wiz.data.platforms; const idx=ps.indexOf(pl); if(idx>=0) ps.splice(idx,1); else ps.push(pl); }
+
+function wizNext(){
+  const d=A.wiz.data;
+  if(A.wiz.step===0&&!d.name.trim()){ toast('Client name is required','err'); return; }
+  if(A.wiz.step===1&&!d.niche.trim()){ toast('Niche is required','err'); return; }
+  A.wiz.step++; render();
+}
+function wizBack(){ A.wiz.step--; render(); }
+
+async function wizSubmit(){
+  const d=A.wiz.data;
+  if(!d.name.trim()){ toast('Name required','err'); return; }
+  const btn=document.getElementById('wiz-next-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Saving...'; }
+  try {
+    const newClient={...d, id:d.name.toLowerCase().replace(/\s+/g,'-')+'-'+uid(), competitors:[], reports:[]};
+    await saveClient(newClient);
+    toast(d.name+' added!');
+    set({screen:'dash'});
+  } catch(err){
+    toast('Error saving client: '+err.message,'err');
+    if(btn){ btn.disabled=false; btn.textContent='Create client →'; }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CLIENT PAGE
+// ═══════════════════════════════════════════════════════════════
+function rClient(){
+  const c=cc(); if(!c){ set({screen:'dash'}); return ''; }
+  const tabs=[{id:'overview',l:'Overview'},{id:'competitors',l:'Competitors'},{id:'discover',l:'Discover'},{id:'analyse',l:'SortFeed'},{id:'report',l:'Monthly Report'}];
+  const tbHtml=tabs.map(function(t){ return '<button class="tab'+(A.tab===t.id?' active':'')+'" onclick="set({tab:\''+t.id+'\'})">'+t.l+'</button>'; }).join('');
+  let content='';
+  if(A.tab==='overview')    content=rOverview(c);
+  if(A.tab==='competitors') content=rCompetitors(c);
+  if(A.tab==='discover')    content=rDiscover(c);
+  if(A.tab==='analyse')     content=rAnalyse(c);
+  if(A.tab==='report')      content=rReport(c);
+  return '<div class="fade-up">'+rNav(c.name)
+    +'<div class="wrap">'
+    +'<div class="fc g8 mb16"><button class="btn btn-ghost btn-sm" onclick="set({screen:\'dash\',clientId:null})">← Dashboard</button></div>'
+    +'<div class="fb mb20">'
+    +'<div><div class="fc g10 mb8"><div class="dot" style="background:'+c.color+';width:10px;height:10px"></div><h1>'+c.name+'</h1><span class="badge" style="background:'+c.light+';color:'+c.color+'">'+(c.package||'Active')+'</span></div><p class="muted text-sm">'+c.niche+'</p></div>'
+    +'<button class="btn btn-secondary btn-sm" onclick="openModal(\'edit\')">Edit client</button>'
+    +'</div>'
+    +'<div class="tabs">'+tbHtml+'</div>'
+    +'<div class="fade-up">'+content+'</div>'
+    +'</div></div>';
+}
+
+// ─── OVERVIEW ─────────────────────────────────────────────────
+function rOverview(c){
+  function pills(a){ return (a||[]).map(function(p){ return '<span class="pill">'+p+'</span>'; }).join('')||'<span class="text-xs muted">None added</span>'; }
+  const hashHtml=(c.hashtags||[]).map(function(h){ return '<span class="pill">#'+h+'</span>'; }).join('')||'<span class="text-xs muted">None</span>';
+  const kwHtml=(c.keywords||[]).map(function(k){ return '<span class="pill">'+k+'</span>'; }).join('')||'<span class="text-xs muted">None</span>';
+  return '<div class="grid2">'
+    +'<div class="card mb0"><div class="section-head">Contact</div><div style="font-size:13px;font-weight:500;margin-bottom:3px">'+(c.email||'No email')+'</div>'
+    +(c.ig_handle?'<a href="https://www.instagram.com/'+c.ig_handle+'/" target="_blank" style="font-size:12px;color:var(--purple)">@'+c.ig_handle+'</a>':'<span class="text-xs muted">No Instagram handle</span>')+'</div>'
+    +'<div class="card mb0"><div class="section-head">Package</div><div style="font-size:16px;font-weight:600;margin-bottom:3px">'+(c.package||'—')+'</div><div class="text-xs muted">'+c.posting_freq+' · '+((c.competitors||[]).filter(function(x){ return x.status==='approved'; }).length)+' competitors</div></div>'
+    +'</div>'
+    +'<div class="card mt8"><div class="section-head">Target audience</div><p style="font-size:13px">'+(c.target||'Not set')+'</p></div>'
+    +'<div class="card"><div class="section-head">Content pillars</div>'+pills(c.pillars)+'</div>'
+    +'<div class="card"><div class="section-head">Hashtags (discovery)</div>'+hashHtml+'</div>'
+    +'<div class="card"><div class="section-head">Keywords (discovery)</div>'+kwHtml+'</div>'
+    +(c.notes?'<div class="card"><div class="section-head">Notes</div><p style="font-size:13px">'+c.notes+'</p></div>':'')
+    +'<div class="mt16"><button class="btn btn-danger btn-sm" onclick="delClient(\''+c.id+'\')">Delete this client</button></div>';
+}
+
+async function delClient(id){
+  if(!confirm('Delete this client and all their data? This cannot be undone.')) return;
+  try { await deleteClientDB(id); set({screen:'dash',clientId:null}); toast('Client deleted'); }
+  catch(err){ toast('Error: '+err.message,'err'); }
+}
+
+// ─── COMPETITORS ──────────────────────────────────────────────
+function rCompetitors(c){
+  const approved=(c.competitors||[]).filter(function(x){ return x.status==='approved'; });
+  const pending=(c.competitors||[]).filter(function(x){ return x.status==='pending'; });
+  function sc(s){ return s>=80?'var(--purple)':s>=60?'var(--green)':'var(--text3)'; }
+  function row(a,canApprove){
+    return '<tr><td><a href="https://www.instagram.com/'+a.username+'/" target="_blank" style="font-weight:600;color:var(--text);text-decoration:none">@'+a.username+' <span style="font-size:10px;color:var(--blue)">↗</span></a></td>'
+      +'<td>'+fmt(a.followers)+'</td>'
+      +'<td><div class="fc g8"><span style="font-weight:700;color:'+sc(a.score||0)+';font-size:14px">'+(a.score||'—')+'</span><div class="score-bar" style="width:48px"><div class="score-fill" style="width:'+(a.score||0)+'%;background:'+sc(a.score||0)+'"></div></div></div></td>'
+      +'<td>'+(a.viral_posts||'—')+'</td>'
+      +'<td>'+(a.best_views?fmtK(a.best_views):'—')+'</td>'
+      +'<td><div class="fc g6">'+(canApprove?'<button class="btn btn-success btn-sm" onclick="approveComp(\''+c.id+'\',\''+a.username+'\')">Approve</button>':'')+'<button class="btn btn-danger btn-sm" onclick="removeComp(\''+c.id+'\',\''+a.username+'\')">Remove</button></div></td></tr>';
+  }
+  return '<div class="card">'
+    +'<div class="fb mb16"><div><h2 style="margin-bottom:2px">Competitor list</h2><p class="text-sm muted">'+approved.length+' approved · '+pending.length+' pending</p></div>'
+    +'<button class="btn btn-primary btn-sm" onclick="openModal(\'add-comp\')">+ Add manually</button></div>'
+    +(pending.length?'<div class="alert alert-warn">'+pending.length+' pending review</div><div class="section-head mb8">Pending review</div><div style="overflow-x:auto;margin-bottom:20px"><table><thead><tr><th>Account</th><th>Followers</th><th>Score /100</th><th>Viral posts</th><th>Best views</th><th>Action</th></tr></thead><tbody>'+pending.map(function(a){ return row(a,true); }).join('')+'</tbody></table></div>':'')
+    +'<div class="section-head mb8">Approved</div>'
+    +(approved.length?'<div style="overflow-x:auto"><table><thead><tr><th>Account</th><th>Followers</th><th>Score /100</th><th>Viral posts</th><th>Best views</th><th>Action</th></tr></thead><tbody>'+approved.map(function(a){ return row(a,false); }).join('')+'</tbody></table></div>'
+      :'<div class="empty" style="padding:24px 0"><div style="font-size:15px;font-weight:600;margin-bottom:6px">No approved competitors</div><div class="text-sm muted">Add manually or use the Discover tab</div></div>')
+    +'</div>'
+    +'<div class="card"><h2 style="margin-bottom:4px">Upload competitor CSV</h2><p class="card-desc" style="font-size:12px;color:var(--text2);margin-bottom:14px">CSV needs a column called username or handle. Followers optional.</p>'
+    +'<div class="dropzone" id="comp-dz" ondragover="event.preventDefault();this.classList.add(\'over\')" ondragleave="this.classList.remove(\'over\')" ondrop="compDrop(event,\''+c.id+'\')">'
+    +'<div style="font-size:14px;color:var(--text2);margin-bottom:6px">Drop CSV here</div>'
+    +'<label class="btn btn-secondary btn-sm" style="cursor:pointer">Browse files<input type="file" accept=".csv" style="display:none" onchange="compFile(event,\''+c.id+'\')"></label>'
+    +'</div></div>';
+}
+
+async function approveComp(cid,u){
+  const c=CLIENTS.find(function(x){ return x.id===cid; }); if(!c) return;
+  c.competitors=c.competitors.map(function(x){ return x.username===u?{...x,status:'approved'}:x; });
+  try { await saveClient(c); render(); toast('@'+u+' approved'); } catch(err){ toast('Error: '+err.message,'err'); }
+}
+
+async function removeComp(cid,u){
+  if(!confirm('Remove @'+u+'?')) return;
+  const c=CLIENTS.find(function(x){ return x.id===cid; }); if(!c) return;
+  c.competitors=c.competitors.filter(function(x){ return x.username!==u; });
+  try { await saveClient(c); render(); toast('Removed'); } catch(err){ toast('Error: '+err.message,'err'); }
+}
+
+function compDrop(e,cid){ e.preventDefault(); document.getElementById('comp-dz')?.classList.remove('over'); const f=e.dataTransfer?.files?.[0]; if(f) compCSV(f,cid); }
+function compFile(e,cid){ const f=e.target?.files?.[0]; if(f) compCSV(f,cid); }
+function compCSV(file,cid){
+  const r=new FileReader();
+  r.onload=async function(ev){
+    const lines=ev.target.result.trim().split('\n');
+    const heads=lines[0].toLowerCase().split(',').map(function(h){ return h.trim().replace(/"/g,''); });
+    const uc=heads.findIndex(function(h){ return ['username','handle','account','user'].some(function(p){ return h.includes(p); }); });
+    const fc=heads.findIndex(function(h){ return h.includes('follow'); });
+    if(uc<0){ toast('Need a username column','err'); return; }
+    const c=CLIENTS.find(function(x){ return x.id===cid; }); if(!c) return;
+    let added=0;
+    for(const line of lines.slice(1)){
+      const cols=line.split(',').map(function(x){ return x.trim().replace(/"/g,'').replace('@',''); });
+      const u=cols[uc]?.trim(); if(!u||u.length<2) continue;
+      if(c.competitors.find(function(x){ return x.username===u; })) continue;
+      c.competitors.push({username:u,status:'pending',followers:fc>=0?parseInt(cols[fc].replace(/,/g,''))||0:0,score:0,viral_posts:0,best_views:0});
+      added++;
+    }
+    try { await saveClient(c); render(); toast(added+' uploaded — approve above'); } catch(err){ toast('Error: '+err.message,'err'); }
+  };
+  r.readAsText(file);
+}
+
+// ─── DISCOVER ─────────────────────────────────────────────────
+function rDiscover(c){
+  const ds=A.disc[c.id]||{};
+  const results=ds.results||[]; const running=ds.running||false;
+  const hasKey=!!getKeys().apify;
+  const hasTerms=(c.hashtags||[]).length>0||(c.keywords||[]).length>0;
+  const rows=results.map(function(a,i){
+    return '<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:'+(i<results.length-1?'1px solid var(--surface2)':'none')+'">'
+      +'<span style="font-size:14px;font-weight:700;color:var(--border2);width:22px">#'+(i+1)+'</span>'
+      +'<div style="flex:1"><a href="https://www.instagram.com/'+a.username+'/" target="_blank" style="font-weight:600;color:var(--text);text-decoration:none;font-size:13px">@'+a.username+' <span style="font-size:10px;color:var(--blue)">↗</span></a>'
+      +'<div class="text-xs muted mt8">'+fmt(a.followers)+' followers · '+(a.viral_posts||0)+' viral posts · best: '+fmtK(a.best_views||0)+' views</div></div>'
+      +'<div style="text-align:right;margin-right:10px"><div style="font-size:16px;font-weight:700;color:'+(a.score>=80?'var(--purple)':a.score>=60?'var(--green)':'var(--text3)')+'">'+a.score+'</div><div class="text-xs muted">/ 100</div></div>'
+      +'<button class="btn btn-success btn-sm" onclick="addFromDisc(\''+c.id+'\',\''+a.username+'\','+a.followers+','+a.score+','+(a.viral_posts||0)+','+(a.best_views||0)+')">+ Add</button>'
+      +'</div>';
+  }).join('');
+  return '<div class="card">'
+    +'<h2 style="margin-bottom:4px">Auto-discover competitors for '+c.name+'</h2>'
+    +'<p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">Searches Instagram using '+c.name+'\'s hashtags and keywords. Scores each out of 100. All links go directly to their Instagram profile.</p>'
+    +(!hasKey?'<div class="alert alert-warn">No Apify API key — showing demo results. <button class="btn btn-secondary btn-sm" style="margin-left:8px" onclick="set({screen:\'settings\'})">Add key →</button></div>'
+      :'<div class="alert alert-success">Apify connected — will search real Instagram data</div>')
+    +(!hasTerms?'<div class="alert alert-warn">No hashtags or keywords set. Go to Overview → Edit client to add some.</div>'
+      :'<div class="alert alert-info"><strong>Hashtags:</strong> '+((c.hashtags||[]).map(function(h){ return '#'+h; }).join(', ')||'none')+'<br><strong>Keywords:</strong> '+((c.keywords||[]).join(', ')||'none')+'</div>')
+    +'<div class="fc g8">'
+    +'<button class="btn btn-primary" onclick="runDisc(\''+c.id+'\')" '+(running||!hasTerms?'disabled':'')+'>'+( running?'<span class="spin"></span>Searching...':'Run competitor discovery')+'</button>'
+    +(results.length?'<button class="btn btn-secondary btn-sm" onclick="addAllDisc(\''+c.id+'\')">Add all '+results.length+'</button><button class="btn btn-ghost btn-sm" onclick="A.disc[\''+c.id+'\']={}; render()">Clear</button>':'')
+    +'</div>'
+    +(running?'<div class="log-box mt12" id="disc-log"></div>':'')
+    +'</div>'
+    +(results.length?'<div class="card" style="padding:0;overflow:hidden"><div class="fb" style="padding:14px 20px;border-bottom:1px solid var(--border)"><h3>Found '+results.length+' — click Add to approve each</h3></div><div style="padding:0 20px">'+rows+'</div></div>':'');
+}
+
+async function runDisc(cid){
+  if(!A.disc[cid]) A.disc[cid]={};
+  A.disc[cid].running=true; A.disc[cid].results=[]; render();
+  const c=CLIENTS.find(function(x){ return x.id===cid; });
+  if(getKeys().apify) await realDisc(cid,c);
+  else await demoDisc(cid,c);
+}
+
+async function demoDisc(cid,c){
+  const msgs=['Searching #'+(c.hashtags||['businesscoach'])[0]+'...','Searching keywords...','Fetching profile data...','Scoring accounts...','Done'];
+  for(let i=0;i<msgs.length;i++){
+    await new Promise(function(r){ setTimeout(r,900); });
+    A.disc[cid].progress=msgs[i]; render();
+  }
+  const names=['coachseanwhalen','myronmgolden','patrickbetdavid','tonyrobbins','lewishowes','russellbrunson','danhenry','bedros_keuilian','jameswedmore','onlinedrea'];
+  A.disc[cid].running=false;
+  A.disc[cid].results=names.map(function(u,i){ return {username:u,followers:Math.floor(Math.random()*700000)+15000,score:Math.max(45,Math.floor(Math.random()*20)+72-i*2),viral_posts:Math.floor(Math.random()*6)+1,best_views:Math.floor(Math.random()*1500000)+80000}; }).sort(function(a,b){ return b.score-a.score; });
+  render(); toast('Demo: '+A.disc[cid].results.length+' found');
+}
+
+async function realDisc(cid,c){
+  const token=getKeys().apify;
+  const log=function(m,t){ A.disc[cid].progress=m; render(); addLog(m,t); };
+  try {
+    const accounts={};
+    for(const tag of (c.hashtags||[]).slice(0,3)){
+      log('Scraping #'+tag+'...');
+      const res=await fetch('https://api.apify.com/v2/acts/apify~instagram-hashtag-scraper/runs?token='+token,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({hashtags:[tag],resultsLimit:30,addParentData:true})});
+      if(!res.ok) continue;
+      const run=await res.json(); const runId=run?.data?.id; if(!runId) continue;
+      let dsId='';
+      for(let i=0;i<36;i++){
+        await new Promise(function(r){ setTimeout(r,5000); });
+        const s=await fetch('https://api.apify.com/v2/actor-runs/'+runId+'?token='+token);
+        const sd=await s.json(); const st=sd?.data?.status;
+        log('Hashtag #'+tag+': '+st);
+        if(st==='SUCCEEDED'){dsId=sd.data.defaultDatasetId;break;}
+        if(['FAILED','ABORTED','TIMED-OUT'].includes(st)) break;
+      }
+      if(!dsId) continue;
+      const items=await (await fetch('https://api.apify.com/v2/datasets/'+dsId+'/items?token='+token)).json();
+      for(const item of (Array.isArray(items)?items:[])){
+        const u=item?.ownerUsername; if(!u||accounts[u]) continue;
+        const f=item?.ownerFollowersCount||0; if(f<3000||f>3000000) continue;
+        const eng=f>0?(((item?.likesCount||0)+(item?.commentsCount||0))/f*100):0;
+        if(eng<0.2||eng>20) continue;
+        accounts[u]={username:u,followers:f,bio:(item?.ownerBio||''),fullName:(item?.ownerFullName||''),engagement:Math.round(eng*100)/100};
+      }
+      log('Total so far: '+Object.keys(accounts).length);
+    }
+    log('Scoring '+Object.keys(accounts).length+' accounts...');
+    const kws=[(c.niche||'').toLowerCase(),...(c.pillars||[]).map(function(p){ return p.toLowerCase(); }),...(c.keywords||[]).map(function(k){ return k.toLowerCase(); })];
+    const scored=Object.values(accounts).map(function(a){
+      const bio=(a.bio+' '+a.fullName).toLowerCase();
+      let ns=0; kws.forEach(function(kw){ if(kw.length>3&&bio.includes(kw)) ns+=3; }); ns=Math.min(ns,35);
+      const es=a.engagement>=3?40:a.engagement>=1.5?30:a.engagement>=0.8?20:10;
+      const fs=a.followers>=10000&&a.followers<=500000?15:a.followers>=5000?8:3;
+      return {username:a.username,followers:a.followers,score:Math.min(Math.round(es+ns+fs),100),viral_posts:Math.max(1,Math.floor(a.engagement/2)),best_views:Math.floor(a.followers*a.engagement/100*8)};
+    }).sort(function(a,b){ return b.score-a.score; }).slice(0,10);
+    A.disc[cid].running=false; A.disc[cid].results=scored; render(); toast('Discovery complete — '+scored.length+' found');
+  } catch(err){ A.disc[cid].running=false; render(); toast('Error: '+err.message,'err'); }
+}
+
+async function addFromDisc(cid,u,f,s,vp,bv){
+  const c=CLIENTS.find(function(x){ return x.id===cid; }); if(!c) return;
+  if(c.competitors.find(function(x){ return x.username===u; })){ toast('Already in list','warn'); return; }
+  c.competitors.push({username:u,followers:f,score:s,viral_posts:vp,best_views:bv,status:'approved'});
+  if(A.disc[cid]?.results) A.disc[cid].results=A.disc[cid].results.filter(function(x){ return x.username!==u; });
+  try { await saveClient(c); render(); toast('@'+u+' approved'); } catch(err){ toast('Error: '+err.message,'err'); }
+}
+
+async function addAllDisc(cid){
+  const c=CLIENTS.find(function(x){ return x.id===cid; });
+  const results=A.disc[cid]?.results||[];
+  if(!c||!results.length) return;
+  let added=0;
+  for(const a of results){ if(!c.competitors.find(function(x){ return x.username===a.username; })){ c.competitors.push({...a,status:'approved'}); added++; } }
+  A.disc[cid].results=[];
+  try { await saveClient(c); render(); toast(added+' added'); } catch(err){ toast('Error: '+err.message,'err'); }
+}
+
+// ─── SORTFEED ANALYSIS ────────────────────────────────────────
+function rAnalyse(c){
+  const as=A.anal[c.id]||{};
+  const result=as.result; const running=as.running; const fn=as.fileName;
+  const hasKey=!!getKeys().anthropic;
+  return '<div class="card">'
+    +'<h2 style="margin-bottom:4px">SortFeed analysis — '+c.name+'</h2>'
+    +'<p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">Run competitors through SortFeed in Chrome, export the CSV, drop it here. Claude analyses every viral video and builds your intelligence brief.</p>'
+    +'<div class="alert alert-info" style="font-size:11px"><strong>SortFeed workflow:</strong> Open SortFeed Chrome extension → paste each competitor username → it shows their viral videos → click Export CSV → drop that file here.</div>'
+    +(!hasKey?'<div class="alert alert-warn">Demo mode — add Anthropic key in Settings for real analysis. <button class="btn btn-secondary btn-sm" style="margin-left:8px" onclick="set({screen:\'settings\'})">Settings →</button></div>'
+      :'<div class="alert alert-success">Anthropic API connected</div>')
+    +'<div class="dropzone" id="sf-dz" ondragover="event.preventDefault();this.classList.add(\'over\')" ondragleave="this.classList.remove(\'over\')" ondrop="sfDrop(event,\''+c.id+'\')">'
+    +(fn?'<div style="font-size:14px;font-weight:500;margin-bottom:6px">'+fn+'</div><button class="btn btn-ghost btn-sm" onclick="A.anal[\''+c.id+'\'].fileName=null;A.anal[\''+c.id+'\'].content=null;render()">Remove</button>'
+      :'<div style="font-size:14px;color:var(--text2);margin-bottom:6px">Drop SortFeed CSV here</div><label class="btn btn-secondary btn-sm" style="cursor:pointer">Browse files<input type="file" accept=".csv" style="display:none" onchange="sfFile(event,\''+c.id+'\')"></label><div class="text-xs muted mt8">Any CSV triggers the demo analysis</div>')
+    +'</div>'
+    +'<button class="btn btn-primary mt12" onclick="runAnal(\''+c.id+'\')" '+(!fn||running?'disabled':'')+'>'+(running?'<span class="spin"></span>Analysing...':'Analyse + build brief')+'</button>'
+    +'</div>'
+    +(result?'<div style="background:#0f1117;border-radius:14px;padding:18px 22px;margin-bottom:12px"><div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Headline insight</div><p style="font-size:15px;color:#f9fafb;font-style:italic;line-height:1.6;margin:0">"'+result.headline_insight+'"</p></div>'
+      +'<div class="card"><div class="section-head mb12">Do this week</div>'+(result.do_this_week||[]).map(function(a,i){ return '<div class="fc g10" style="margin-bottom:12px;align-items:flex-start"><div style="width:21px;height:21px;border-radius:50%;background:var(--text);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(i+1)+'</div><p style="font-size:13px;line-height:1.5;margin:0">'+a+'</p></div>'; }).join('')+'</div>'
+      +'<div class="card"><div class="section-head mb12">Hook bank — ready to use for '+c.name+'</div>'+(result.hook_bank||[]).map(function(h,i){ return '<div class="fc g10" style="padding:8px 0;border-bottom:'+(i<result.hook_bank.length-1?'1px solid var(--surface2)':'none')+'"><span class="text-xs muted mono" style="width:16px;flex-shrink:0">'+String(i+1).padStart(2,'0')+'</span><p style="font-size:13px;font-weight:500;margin:0">"'+h+'"</p></div>'; }).join('')+'</div>'
+      +'<div class="alert alert-success">Analysis complete</div>':'');
+}
+
+function sfDrop(e,cid){ e.preventDefault(); document.getElementById('sf-dz')?.classList.remove('over'); const f=e.dataTransfer?.files?.[0]; if(f) sfLoad(f,cid); }
+function sfFile(e,cid){ const f=e.target?.files?.[0]; if(f) sfLoad(f,cid); }
+function sfLoad(file,cid){ if(!A.anal[cid]) A.anal[cid]={}; A.anal[cid].fileName=file.name; const r=new FileReader(); r.onload=function(ev){ A.anal[cid].content=ev.target.result; render(); }; r.readAsText(file); }
+
+async function runAnal(cid){
+  if(!A.anal[cid]) A.anal[cid]={}; A.anal[cid].running=true; A.anal[cid].result=null; render();
+  const c=CLIENTS.find(function(x){ return x.id===cid; });
+  if(getKeys().anthropic) await realAnal(cid,c);
+  else await demoAnal(cid,c);
+}
+
+async function demoAnal(cid,c){
+  await new Promise(function(r){ setTimeout(r,2000); });
+  A.anal[cid].running=false; A.anal[cid].result=getAnalDemo(c); render(); toast('Demo analysis complete');
+}
+
+async function realAnal(cid,c){https://api.anthropic.com/v1/messages
+  try {
+    const content=A.anal[cid].content||'';
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'x-api-key':getKeys().anthropic,'anthropic-version':'2023-06-01','content-type':'application/json'},body:JSON.stringify({model:'claude-3-5-sonnet-20240620',max_tokens:2000,messages:[{role:'user',content:'You are the lead content strategist at Hypnotiic Media (350M+ views across clients). Analyse this SortFeed viral content CSV for client "'+c.name+'" (niche: '+c.niche+', pillars: '+(c.pillars||[]).join(', ')+').\n\nCSV data:\n'+content.slice(0,4000)+'\n\nReturn ONLY valid JSON, no markdown:\n{"headline_insight":"max 25 words","do_this_week":["action 1","action 2","action 3"],"hook_bank":["hook 1","hook 2","hook 3","hook 4","hook 5","hook 6","hook 7","hook 8","hook 9","hook 10"]}'}]})});
+    const data=await res.json(); let text=data?.content?.[0]?.text?.trim()||'';
+    if(text.startsWith('```')){ const p=text.split('```'); text=p[1]||p[0]; if(text.startsWith('json')) text=text.slice(4); }
+    A.anal[cid].running=false; A.anal[cid].result=JSON.parse(text.trim()); render(); toast('Analysis complete');
+  } catch(err){ A.anal[cid].running=false; A.anal[cid].result=getAnalDemo(CLIENTS.find(function(x){ return x.id===cid; })); render(); toast('API error — demo shown','err'); }
+}
+
+function getAnalDemo(c){
+  return {
+    headline_insight:'Contrast hooks dominate '+(c?.niche||'this niche')+' — posts opening with a direct challenge to common advice average 3.2x more views.',
+    do_this_week:['Record a talking-head reel: "Most '+(c?.pillars||['coaches'])[0]+' advice is wrong — here\'s what actually works"','Repurpose top 3 organic posts into a carousel — bold first slide claim, proof inside, swipe CTA','Post a 15-second opinion reel to camera — no B-roll, bold take, no fluff'],
+    hook_bank:['Nobody talks about the real reason most clients stay stuck','I studied 90 posts from your top competitors. Here\'s the pattern','Stop posting value content. Do this instead','The advice silently killing your content results','Most people get this wrong. The top 1% do this','Your content isn\'t the problem — your hook is','I changed one thing and tripled my reach','The difference between 500 views and 500k views','Unpopular opinion: consistency is overrated','What nobody tells you about going viral in this niche']
+  };
+}
+
+// ─── MONTHLY REPORT ───────────────────────────────────────────
+function igMetricCard(label,value,sub,color){
+  return '<div class="ig-metric-card">'
+    +'<div class="ig-metric-label">'+label+'</div>'
+    +'<div class="ig-metric-value" style="color:'+(color||'var(--text)')+'">'+value+'</div>'
+    +(sub?'<div class="ig-metric-sub">'+sub+'</div>':'')
+    +'</div>';
+}
+
+function igBarRow(label,val,pct,color){
+  return '<div class="ig-bar-row">'
+    +'<div class="ig-bar-label">'+label+'</div>'
+    +'<div class="ig-bar-track"><div class="ig-bar-fill" style="width:'+pct+'%;background:'+color+'"></div></div>'
+    +'<div class="ig-bar-val">'+val+'</div>'
+    +'</div>';
+}
+
+function rReport(c){
+  const rs=A.rep[c.id]||{};
+  const hasApify=!!getKeys().apify;
+  const hasIg=!!c.ig_handle;
+  const data=rs.data; const running=rs.running;
+
+  var dashboard='';
+  if(data){
+    var bars=igBarRow('Avg views / reel',fmtK(data.avg_views_reel||0),Math.min(100,(data.avg_views_reel||0)/10000*100).toFixed(1),'#833ab4')
+      +igBarRow('Avg likes / post',fmtK(data.avg_likes||0),Math.min(100,(data.avg_likes||0)/2000*100).toFixed(1),'#fd1d1d')
+      +igBarRow('Avg comments',fmtK(data.avg_comments||0),Math.min(100,(data.avg_comments||0)/200*100).toFixed(1),'#2563EB')
+      +igBarRow('Engagement rate',(data.engagement_rate||0)+'%',Math.min(100,(data.engagement_rate||0)/5*100).toFixed(1),'#18A06E');
+    var insightsHtml=(data.insights||[]).map(function(ins){ return '<div style="padding:8px 0;border-bottom:1px solid var(--surface2);font-size:13px;line-height:1.5">• '+ins+'</div>'; }).join('');
+    var postGridHtml='';
+    if(data.top_posts&&data.top_posts.length){
+      var thumbs=data.top_posts.map(function(p){
+        var badge=p.type==='Reel'?'b-purple':p.type==='Carousel'?'b-blue':'b-gray';
+        var metric=p.type==='Reel'?'views':'likes';
+        var num=fmtK(p.views||p.likes||0);
+        return '<a href="https://www.instagram.com/'+c.ig_handle+'/" target="_blank" class="post-thumb"><span class="post-type-badge badge '+badge+'">'+p.type+'</span><div class="post-views">'+num+'</div><div class="text-xs muted">'+metric+'</div></a>';
+      }).join('');
+      postGridHtml='<div class="card mt12"><div class="section-head mb12">Top posts this month (by views)</div><div class="post-grid">'+thumbs+'</div></div>';
+    }
+    dashboard='<div style="background:var(--surface);border-radius:var(--rl);border:1px solid var(--border);overflow:hidden;margin-bottom:12px">'
+      +'<div style="background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);padding:20px 22px">'
+      +'<div class="fc g10 mb8"><div style="width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px">'+c.name.slice(0,1)+'</div>'
+      +'<div><div style="color:#fff;font-weight:600;font-size:14px">@'+c.ig_handle+'</div><div style="color:rgba(255,255,255,.75);font-size:11px">'+data.month+' — Monthly Performance</div></div></div>'
+      +'<div style="color:rgba(255,255,255,.9);font-size:12px">Prepared by Hypnotiic Media</div></div>'
+      +'<div style="padding:20px 22px">'
+      +'<div class="section-head mb12">Content overview</div>'
+      +'<div class="grid4 mb16">'+igMetricCard('Posts published',data.total_posts,'last 30 days','var(--text)')+igMetricCard('Total views',fmtK(data.total_views),'across all reels','var(--purple)')+igMetricCard('Total likes',fmtK(data.total_likes),'all posts','var(--pink)')+igMetricCard('Total comments',fmtK(data.total_comments),'all posts','var(--blue)')+'</div>'
+      +'<div class="section-head mb12">Engagement breakdown</div>'
+      +'<div class="card" style="margin-bottom:16px;padding:16px 18px">'+bars+'</div>'
+      +(data.note?'<div class="alert alert-warn text-sm"><strong>Note:</strong> '+data.note+'</div>':'')
+      +'<div class="section-head mb12">This month\'s insights</div>'
+      +'<div class="card" style="padding:16px 18px;margin-bottom:0">'+insightsHtml+'</div>'
+      +'</div></div>'
+      +postGridHtml
+      +'<div class="card" style="margin-bottom:0"><div class="section-head mb8">Team notes</div><p style="font-size:13px;line-height:1.7">'+(data.notes||'—')+'</p><hr>'
+      +'<div class="fc g8"><button class="btn btn-primary" onclick="openModal(\'send-report\')">Send to '+c.name+'</button><button class="btn btn-secondary" onclick="window.print()">Print / Save as PDF</button></div></div>';
+  }
+
+  return '<div class="card">'
+    +'<h2 style="margin-bottom:4px">Monthly performance report — '+c.name+'</h2>'
+    +'<p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">Pulls '+c.name+'\'s Instagram data for the last 30 days and builds an analytics dashboard to send to the client each month.</p>'
+    +(!hasIg?'<div class="alert alert-warn">No Instagram handle set. <button class="btn btn-secondary btn-sm" style="margin-left:8px" onclick="openModal(\'edit\')">Edit client →</button></div>':'')
+    +(!hasApify&&hasIg?'<div class="alert alert-warn">Add Apify key in Settings for real data. <button class="btn btn-secondary btn-sm" style="margin-left:8px" onclick="set({screen:\'settings\'})">Settings →</button></div>':'')
+    +(hasApify&&hasIg?'<div class="alert alert-success">Will pull real data for @'+c.ig_handle+'</div>':'')
+    +'<div class="field"><label class="label">Month</label><input class="input" id="rep-month" value="'+(rs.month||new Date().toLocaleString('default',{month:'long',year:'numeric'}))+'" style="max-width:220px"></div>'
+    +'<div class="field mb0"><label class="label">Team notes for this month</label><textarea class="input" id="rep-notes" rows="3" placeholder="e.g. Launched 2 skit videos, client hit 50k followers...">'+(rs.notes||'')+'</textarea></div>'
+    +'<div class="fc g8 mt12">'
+    +'<button class="btn btn-primary" onclick="runReport(\''+c.id+'\')" '+(running||!hasIg?'disabled':'')+'>'+( running?'<span class="spin"></span>Pulling data...':'Pull data + build report')+'</button>'
+    +(data?'<button class="btn btn-secondary" onclick="openModal(\'send-report\')">Send to '+c.name+' →</button>':'')
+    +'</div></div>'
+    +dashboard;
+}
+
+async function runReport(cid){
+  if(!A.rep[cid]) A.rep[cid]={};
+  const month=document.getElementById('rep-month')?.value||new Date().toLocaleString('default',{month:'long',year:'numeric'});
+  const notes=document.getElementById('rep-notes')?.value||'';
+  A.rep[cid].month=month; A.rep[cid].notes=notes; A.rep[cid].running=true; A.rep[cid].data=null; render();
+  const c=CLIENTS.find(function(x){ return x.id===cid; });
+  if(getKeys().apify&&c?.ig_handle) await realReport(cid,c,month,notes);
+  else await demoReport(cid,c,month,notes);
+}
+
+async function demoReport(cid,c,month,notes){
+  await new Promise(function(r){ setTimeout(r,1800); });
+  const posts=Math.floor(Math.random()*10)+12; const avgV=Math.floor(Math.random()*80000)+15000; const avgL=Math.floor(Math.random()*1500)+300; const avgC=Math.floor(Math.random()*120)+20; const f=Math.floor(Math.random()*5000)+8000;
+  A.rep[cid].running=false;
+  A.rep[cid].data={month,notes,total_posts:posts,total_views:avgV*posts,total_likes:avgL*posts,total_comments:avgC*posts,avg_views_reel:avgV,avg_likes:avgL,avg_comments:avgC,engagement_rate:((avgL+avgC)/f*100).toFixed(2),
+    note:'Demo data — add Apify key and client Instagram handle for real analytics.',
+    top_posts:[{type:'Reel',views:avgV*4.2},{type:'Reel',views:avgV*2.8},{type:'Carousel',views:0,likes:avgL*3.1},{type:'Reel',views:avgV*1.9},{type:'Image',views:0,likes:avgL*1.4},{type:'Reel',views:avgV*1.2}],
+    insights:['Published '+posts+' posts — '+(posts/4).toFixed(1)+' per week on average','Reels averaged '+fmtK(avgV)+' views — strong reach for this follower count','Engagement rate of '+((avgL+avgC)/f*100).toFixed(2)+'% — '+(((avgL+avgC)/f*100)>=2?'above':'building toward')+' the 2% benchmark','Comments-to-likes ratio is healthy — audience engages, not just watches','Best performing content was 4.2x the account average']};
+  render(); toast('Demo report built');
+}
+
+async function realReport(cid,c,month,notes){
+  const token=getKeys().apify;
+  try {
+    const res=await fetch('https://api.apify.com/v2/acts/apify~instagram-scraper/runs?token='+token,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({directUrls:['https://www.instagram.com/'+c.ig_handle+'/'],resultsType:'posts',resultsLimit:40,addParentData:true})});
+    if(!res.ok) throw new Error('Apify error');
+    const run=await res.json(); const runId=run?.data?.id; if(!runId) throw new Error('No run ID');
+    let dsId='';
+    for(let i=0;i<60;i++){
+      await new Promise(function(r){ setTimeout(r,5000); });
+      const s=await fetch('https://api.apify.com/v2/actor-runs/'+runId+'?token='+token);
+      const sd=await s.json(); const st=sd?.data?.status;
+      A.rep[cid].progress='Status: '+st; render();
+      if(st==='SUCCEEDED'){dsId=sd.data.defaultDatasetId;break;}
+      if(['FAILED','ABORTED','TIMED-OUT'].includes(st)) throw new Error('Run failed: '+st);
+    }
+    if(!dsId) throw new Error('Timed out');
+    const items=await (await fetch('https://api.apify.com/v2/datasets/'+dsId+'/items?token='+token)).json();
+    const ago=new Date(); ago.setDate(ago.getDate()-30);
+    const posts30=items.filter(function(p){ try{ return new Date(p.timestamp)>=ago; }catch(e){ return true; } });
+    const allP=posts30.length>0?posts30:items.slice(0,30);
+    const tV=allP.reduce(function(s,p){ return s+(p.videoViewCount||0); },0);
+    const tL=allP.reduce(function(s,p){ return s+(p.likesCount||0); },0);
+    const tC=allP.reduce(function(s,p){ return s+(p.commentsCount||0); },0);
+    const f=allP[0]?.ownerFollowersCount||1;
+    const aV=allP.length?Math.round(tV/allP.length):0; const aL=allP.length?Math.round(tL/allP.length):0; const aC=allP.length?Math.round(tC/allP.length):0;
+    const topPosts=allP.map(function(p){ return {type:p.type==='Video'||p.type==='Reel'?'Reel':p.type==='Sidecar'?'Carousel':'Image',views:p.videoViewCount||0,likes:p.likesCount||0,caption:(p.caption||'').slice(0,60)}; }).sort(function(a,b){ return (b.views||b.likes)-(a.views||a.likes); }).slice(0,6);
+    A.rep[cid].running=false;
+    A.rep[cid].data={month,notes,total_posts:allP.length,total_views:tV,total_likes:tL,total_comments:tC,avg_views_reel:aV,avg_likes:aL,avg_comments:aC,engagement_rate:((aL+aC)/f*100).toFixed(2),top_posts:topPosts,
+      note:'Shares and saves require Instagram Business API access — contact us to set this up.',
+      insights:['Published '+allP.length+' posts in 30 days — '+(allP.length/4).toFixed(1)+' per week','Reels averaged '+fmtK(aV)+' views','Engagement rate of '+((aL+aC)/f*100).toFixed(2)+'%','Total of '+fmtK(tC)+' comments this month','Best post achieved '+fmtK(topPosts[0]?topPosts[0].views||topPosts[0].likes:0)+' '+(topPosts[0]?.type==='Reel'?'views':'likes')]};
+    render(); toast('Report built from real data');
+  } catch(err){ A.rep[cid].running=false; await demoReport(cid,c,month,notes); toast('API error — demo shown','err'); }
+}
+
+// ─── SETTINGS ─────────────────────────────────────────────────
+function rSettings(){
+  const keys=getKeys();
+  return '<div class="fade-up">'+rNav('Settings')
+    +'<div class="wrap" style="max-width:580px">'
+    +'<div class="fc g8 mb20"><button class="btn btn-ghost btn-sm" onclick="set({screen:\'dash\'})">← Dashboard</button><h2>Settings</h2></div>'
+    +'<div class="card">'
+    +'<h2 style="margin-bottom:4px">API keys</h2>'
+    +'<p style="font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.6">Stored in this browser only — go directly from your browser to Apify and Anthropic. No one else can see them.</p>'
+    +'<div class="field"><label class="label">Apify API token — competitor discovery + reports</label>'
+    +'<div class="fc g8"><input class="input" id="apify-k" type="password" value="'+(keys.apify||'')+'" placeholder="apify_api_..." style="flex:1">'+(keys.apify?'<span class="badge b-green">Connected</span>':'<span class="badge b-gray">Not set</span>')+'</div>'
+    +'<div class="text-xs muted mt8">Get at <a href="https://apify.com" target="_blank" style="color:var(--purple)">apify.com</a> → Settings → Integrations → API tokens</div></div>'
+    +'<div class="field mb0"><label class="label">Anthropic API key — Claude analysis</label>'
+    +'<div class="fc g8"><input class="input" id="anth-k" type="password" value="'+(keys.anthropic||'')+'" placeholder="sk-ant-..." style="flex:1">'+(keys.anthropic?'<span class="badge b-green">Connected</span>':'<span class="badge b-gray">Not set</span>')+'</div>'
+    +'<div class="text-xs muted mt8">Get at <a href="https://console.anthropic.com" target="_blank" style="color:var(--purple)">console.anthropic.com</a> → API Keys</div></div>'
+    +'<button class="btn btn-primary mt16" onclick="doSaveKeys()">Save API keys</button>'
+    +'</div>'
+    +'<div class="card"><h2 style="margin-bottom:4px">Team access</h2>'
+    +'<p style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6">To add team members, go to your Supabase dashboard → Authentication → Users → Invite user. Add their email and they can log in from any device.</p>'
+    +'<a href="https://supabase.com/dashboard/project/dvknzfhsgnywevhmsgns/auth/users" target="_blank" class="btn btn-secondary btn-sm">Manage users in Supabase →</a>'
+    +'</div>'
+    +'<div class="card"><h2 style="margin-bottom:4px">Your account</h2>'
+    +'<p style="font-size:12px;color:var(--text2);margin-bottom:12px">Signed in as <strong>'+(USER?.email||'—')+'</strong></p>'
+    +'<button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign out</button>'
+    +'</div>'
+    +'</div></div>';
+}
+
+function doSaveKeys(){
+  saveKeys({apify:document.getElementById('apify-k')?.value?.trim()||'',anthropic:document.getElementById('anth-k')?.value?.trim()||''});
+  render(); toast('API keys saved');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════════════════════════════
+function openModal(type){ A.modal=type; A.md={}; if(type==='edit'){ const c=cc(); if(c) A.md={...c,pillars:[...(c.pillars||[])],hashtags:[...(c.hashtags||[])],keywords:[...(c.keywords||[])],platforms:[...(c.platforms||[])]}; } render(); }
+function closeModal(){ A.modal=null; A.md={}; render(); }
+
+function getModal(){
+  if(A.modal==='edit') return editModal();
+  if(A.modal==='add-comp') return addCompModal();
+  if(A.modal==='send-report') return sendReportModal();
+  return '';
+}
+
+function editModal(){
+  const d=A.md;
+  const pillHtml=(d.pillars||[]).map(function(p){ return '<span class="pill">'+p+'<button class="pill-x" onclick="rmMP(\''+p+'\')">×</button></span>'; }).join('');
+  const hashHtml=(d.hashtags||[]).map(function(h){ return '<span class="pill">#'+h+'<button class="pill-x" onclick="rmMH(\''+h+'\')">×</button></span>'; }).join('');
+  const kwHtml=(d.keywords||[]).map(function(k){ return '<span class="pill">'+k+'<button class="pill-x" onclick="rmMK(\''+k+'\')">×</button></span>'; }).join('');
+  const colorPicker=COLORS.map(function(c,i){ return '<button type="button" onclick="setMC('+i+')" style="width:24px;height:24px;border-radius:50%;background:'+c.color+';border:'+(d.color===c.color?'3px solid var(--text)':'2px solid transparent')+';cursor:pointer;transition:border .12s"></button>'; }).join('');
+  return '<div class="modal">'
+    +'<div class="modal-head"><h3>Edit — '+d.name+'</h3><button class="btn btn-ghost btn-icon" onclick="closeModal()">×</button></div>'
+    +'<div class="modal-body">'
+    +'<div class="grid2"><div class="field"><label class="label">Name</label><input class="input" id="ec-n" value="'+(d.name||'')+'"></div><div class="field"><label class="label">Email</label><input class="input" id="ec-e" value="'+(d.email||'')+'"></div></div>'
+    +'<div class="field"><label class="label">Instagram handle (no @)</label><input class="input" id="ec-ig" value="'+(d.ig_handle||'')+'" placeholder="username"></div>'
+    +'<div class="field"><label class="label">Niche</label><input class="input" id="ec-ni" value="'+(d.niche||'')+'"></div>'
+    +'<div class="field"><label class="label">Target audience</label><textarea class="input" id="ec-ta" rows="2">'+(d.target||'')+'</textarea></div>'
+    +'<div class="grid2"><div class="field"><label class="label">Posting freq</label><select class="input" id="ec-fr">'+FREQS.map(function(f){ return '<option '+(d.posting_freq===f?'selected':'')+'>'+f+'</option>'; }).join('')+'</select></div>'
+    +'<div class="field"><label class="label">Package</label><select class="input" id="ec-pk">'+PKGS.map(function(p){ return '<option '+(d.package===p?'selected':'')+'>'+p+'</option>'; }).join('')+'</select></div></div>'
+    +'<div class="field"><label class="label">Content pillars</label><div style="min-height:28px;margin-bottom:7px">'+(pillHtml||'<span class="text-xs muted">None</span>')+'</div><div class="fc g8"><input class="input" id="ec-pi" placeholder="Add pillar" style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addMP()}"><button class="btn btn-secondary btn-sm" onclick="addMP()">Add</button></div></div>'
+    +'<div class="field"><label class="label">Hashtags</label><div style="min-height:28px;margin-bottom:7px">'+(hashHtml||'<span class="text-xs muted">None</span>')+'</div><div class="fc g8"><input class="input" id="ec-ha" placeholder="businesscoach..." style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addMH()}"><button class="btn btn-secondary btn-sm" onclick="addMH()">Add</button></div></div>'
+    +'<div class="field"><label class="label">Keywords</label><div style="min-height:28px;margin-bottom:7px">'+(kwHtml||'<span class="text-xs muted">None</span>')+'</div><div class="fc g8"><input class="input" id="ec-kw" placeholder="business coach..." style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addMK()}"><button class="btn btn-secondary btn-sm" onclick="addMK()">Add</button></div></div>'
+    +'<div class="field"><label class="label">Platforms</label><div class="fc g12" style="flex-wrap:wrap">'+PLATFORMS.map(function(pl){ return '<label class="fc g8" style="cursor:pointer;font-size:13px"><input type="checkbox" '+((d.platforms||[]).includes(pl)?'checked':'')+' onchange="toggleMP(\''+pl+'\')" style="width:15px;height:15px;cursor:pointer"> '+pl+'</label>'; }).join('')+'</div></div>'
+    +'<div class="field"><label class="label">Colour</label><div class="fc g8">'+colorPicker+'</div></div>'
+    +'<div class="field mb0"><label class="label">Notes</label><textarea class="input" id="ec-no" rows="2">'+(d.notes||'')+'</textarea></div>'
+    +'</div>'
+    +'<div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" id="save-edit-btn" onclick="saveEdit()">Save changes</button></div>'
+    +'</div>';
+}
+
+function addMP(){ const i=document.getElementById('ec-pi'); if(!i) return; const v=i.value.trim(); if(!v) return; if(!A.md.pillars.includes(v)) A.md.pillars.push(v); i.value=''; render(); setTimeout(function(){ document.getElementById('ec-pi')?.focus(); },40); }
+function rmMP(v){ A.md.pillars=A.md.pillars.filter(function(x){ return x!==v; }); render(); }
+function addMH(){ const i=document.getElementById('ec-ha'); if(!i) return; const v=i.value.trim().replace('#','').replace(/\s/g,''); if(!v) return; if(!A.md.hashtags.includes(v)) A.md.hashtags.push(v); i.value=''; render(); setTimeout(function(){ document.getElementById('ec-ha')?.focus(); },40); }
+function rmMH(v){ A.md.hashtags=A.md.hashtags.filter(function(x){ return x!==v; }); render(); }
+function addMK(){ const i=document.getElementById('ec-kw'); if(!i) return; const v=i.value.trim(); if(!v) return; if(!A.md.keywords.includes(v)) A.md.keywords.push(v); i.value=''; render(); setTimeout(function(){ document.getElementById('ec-kw')?.focus(); },40); }
+function rmMK(v){ A.md.keywords=A.md.keywords.filter(function(x){ return x!==v; }); render(); }
+function toggleMP(pl){ const idx=(A.md.platforms||[]).indexOf(pl); if(idx>=0) A.md.platforms.splice(idx,1); else A.md.platforms.push(pl); }
+function setMC(i){ A.md.color=COLORS[i].color; A.md.light=COLORS[i].light; render(); }
+
+async function saveEdit(){
+  const d=A.md;
+  const btn=document.getElementById('save-edit-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Saving...'; }
+  const updates={
+    name:document.getElementById('ec-n')?.value?.trim()||d.name,
+    email:document.getElementById('ec-e')?.value?.trim()||'',
+    ig_handle:document.getElementById('ec-ig')?.value?.trim().replace('@','')||'',
+    niche:document.getElementById('ec-ni')?.value?.trim()||'',
+    target:document.getElementById('ec-ta')?.value?.trim()||'',
+    posting_freq:document.getElementById('ec-fr')?.value||d.posting_freq,
+    package:document.getElementById('ec-pk')?.value||d.package,
+    notes:document.getElementById('ec-no')?.value?.trim()||'',
+    pillars:[...(d.pillars||[])], hashtags:[...(d.hashtags||[])],
+    keywords:[...(d.keywords||[])], platforms:[...(d.platforms||[])],
+    color:d.color||cc()?.color, light:d.light||cc()?.light,
+  };
+  try {
+    const c=CLIENTS.find(function(x){ return x.id===d.id; });
+    if(c) Object.assign(c,updates);
+    await saveClient({...d,...updates});
+    closeModal(); toast('Client updated');
+  } catch(err){ toast('Error: '+err.message,'err'); if(btn){ btn.disabled=false; btn.textContent='Save changes'; } }
+}
+
+function addCompModal(){
+  return '<div class="modal" style="max-width:400px">'
+    +'<div class="modal-head"><h3>Add competitor manually</h3><button class="btn btn-ghost btn-icon" onclick="closeModal()">×</button></div>'
+    +'<div class="modal-body">'
+    +'<div class="field"><label class="label">Instagram username (no @)</label><input class="input" id="mc-u" placeholder="alexhormozi"></div>'
+    +'<div class="grid2"><div class="field mb0"><label class="label">Followers</label><input class="input" id="mc-f" type="number" placeholder="150000"></div><div class="field mb0"><label class="label">Score /100</label><input class="input" id="mc-s" type="number" placeholder="75" min="0" max="100"></div></div>'
+    +'</div>'
+    +'<div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveComp()">Add competitor</button></div>'
+    +'</div>';
+}
+
+async function saveComp(){
+  const u=document.getElementById('mc-u')?.value?.trim().replace('@',''); if(!u){ toast('Username required','err'); return; }
+  const c=cc(); if(!c){ closeModal(); return; }
+  if(c.competitors.find(function(x){ return x.username===u; })){ toast('Already in list','warn'); return; }
+  c.competitors.push({username:u,followers:parseInt(document.getElementById('mc-f')?.value)||0,score:parseInt(document.getElementById('mc-s')?.value)||0,viral_posts:0,best_views:0,status:'approved'});
+  try { await saveClient(c); closeModal(); toast('@'+u+' added'); } catch(err){ toast('Error: '+err.message,'err'); }
+}
+
+function sendReportModal(){
+  const c=cc()||{};
+  const rs=A.rep[c.id]||{};
+  return '<div class="modal" style="max-width:440px">'
+    +'<div class="modal-head"><h3>Send report to '+c.name+'</h3><button class="btn btn-ghost btn-icon" onclick="closeModal()">×</button></div>'
+    +'<div class="modal-body">'
+    +'<p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6">Copy the details below and send via your email client. Print the report as PDF from the Monthly Report tab to attach.</p>'
+    +'<div class="field"><label class="label">To</label><input class="input" id="sr-email" value="'+(c.email||'')+'" placeholder="client@example.com"></div>'
+    +'<div class="field mb0"><label class="label">Subject</label><input class="input" id="sr-sub" value="Your Monthly Content Report — '+(rs.data?.month||new Date().toLocaleString('default',{month:'long',year:'numeric'}))+'"></div>'
+    +'</div>'
+    +'<div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Close</button><button class="btn btn-primary" onclick="copyEmailDetails()">Copy email details</button></div>'
+    +'</div>';
+}
+
+function copyEmailDetails(){
+  const c=cc()||{};
+  const email=document.getElementById('sr-email')?.value||'';
+  const sub=document.getElementById('sr-sub')?.value||'';
+  const text='To: '+email+'\nSubject: '+sub+'\n\nHi '+c.name+',\n\nPlease find your monthly content performance report attached.\n\nBest,\nHypnotiic Media';
+  navigator.clipboard?.writeText(text).then(function(){ toast('Copied to clipboard'); });
+  closeModal();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BIND
+// ═══════════════════════════════════════════════════════════════
+function bind(){
+  document.getElementById('l-pass')?.addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
+  document.getElementById('l-email')?.addEventListener('keydown',function(e){ if(e.key==='Enter') document.getElementById('l-pass')?.focus(); });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+async function init(){
+  render(); // show loading screen
+  const {data:{session}}=await SB.auth.getSession();
+  if(session?.user){
+    USER=session.user;
+    await loadClients();
+    set({screen:'dash'});
+  } else {
+    set({screen:'login'});
+  }
+  // Listen for auth changes
+  SB.auth.onAuthStateChange(async function(event,session){
+    if(event==='SIGNED_IN'&&session?.user){
+      USER=session.user;
+      await loadClients();
+      set({screen:'dash'});
+    } else if(event==='SIGNED_OUT'){
+      USER=null; CLIENTS=[];
+      set({screen:'login'});
+    }
+  });
+}
+
+init();
+</script>
+</body>
+</html>
