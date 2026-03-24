@@ -579,23 +579,44 @@ async function wizSubmit() {
   if (!d.name.trim()) { showToast('Client name is required', 'warn'); return; }
   var btn = document.getElementById('wiz-submit');
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="sp"></span>Saving...'; }
+
+  var newClient = {
+    id: d.name.toLowerCase().replace(/\s+/g, '-') + '-' + uid(),
+    name: d.name, email: d.email, ig_handle: d.ig_handle,
+    niche: d.niche, target: d.target,
+    pillars: d.pillars, hashtags: d.hashtags, keywords: d.keywords,
+    platforms: d.platforms, posting_freq: d.posting_freq,
+    package: d.package, notes: d.notes,
+    color: d.color, light: d.light,
+    competitors: [], reports: []
+  };
+
+  // 1. Add to local state and show dashboard immediately
+  CLIENTS.push(newClient);
+  showToast(d.name + ' added!');
+  set({ screen: 'dash' });
+
+  // 2. Save to Supabase in background
   try {
-    var newClient = {
-      id: d.name.toLowerCase().replace(/\s+/g, '-') + '-' + uid(),
-      name: d.name, email: d.email, ig_handle: d.ig_handle,
-      niche: d.niche, target: d.target,
-      pillars: d.pillars, hashtags: d.hashtags, keywords: d.keywords,
-      platforms: d.platforms, posting_freq: d.posting_freq,
-      package: d.package, notes: d.notes,
-      color: d.color, light: d.light,
-      competitors: [], reports: []
+    var payload = {
+      id: newClient.id, name: newClient.name, email: newClient.email || '',
+      ig_handle: newClient.ig_handle || '', niche: newClient.niche || '',
+      target: newClient.target || '', pillars: newClient.pillars || [],
+      hashtags: newClient.hashtags || [], keywords: newClient.keywords || [],
+      platforms: newClient.platforms || [], posting_freq: newClient.posting_freq || '',
+      package: newClient.package || '', notes: newClient.notes || '',
+      color: newClient.color || '', light: newClient.light || '',
+      competitors: [], reports: [],
+      owner_id: USER.id
     };
-    await upsertClient(newClient);
-    showToast(d.name + ' added successfully!');
-    set({ screen: 'dash' });
+    var res = await SB.from('clients').insert(payload);
+    if (res.error) {
+      showToast('Client saved locally — sync error: ' + res.error.message, 'warn');
+      console.error('Supabase insert error:', res.error);
+    }
   } catch (err) {
-    showToast('Error saving client: ' + err.message, 'err');
-    if (btn) { btn.disabled = false; btn.innerHTML = 'Create client →'; }
+    showToast('Client saved locally — sync error: ' + err.message, 'warn');
+    console.error('Save error:', err);
   }
 }
 
@@ -730,16 +751,22 @@ function renderCompetitors(c) {
 async function approveComp(cid, username) {
   var c = CLIENTS.find(function(x) { return x.id === cid; }); if (!c) return;
   c.competitors = c.competitors.map(function(x) { return x.username === username ? Object.assign({}, x, { status: 'approved' }) : x; });
-  try { await upsertClient(c); render(); showToast('@' + username + ' approved'); }
-  catch (err) { showToast('Error: ' + err.message, 'err'); }
+  render(); showToast('@' + username + ' approved');
+  try {
+    var res = await SB.from('clients').upsert({ id: c.id, competitors: c.competitors, owner_id: USER.id }, { onConflict: 'id' });
+    if (res.error) console.error('Sync error:', res.error);
+  } catch(err) { console.error('Sync error:', err); }
 }
 
 async function removeComp(cid, username) {
   if (!confirm('Remove @' + username + ' from competitors?')) return;
   var c = CLIENTS.find(function(x) { return x.id === cid; }); if (!c) return;
   c.competitors = c.competitors.filter(function(x) { return x.username !== username; });
-  try { await upsertClient(c); render(); showToast('Removed'); }
-  catch (err) { showToast('Error: ' + err.message, 'err'); }
+  render(); showToast('Removed');
+  try {
+    var res = await SB.from('clients').upsert({ id: c.id, competitors: c.competitors, owner_id: USER.id }, { onConflict: 'id' });
+    if (res.error) console.error('Sync error:', res.error);
+  } catch(err) { console.error('Sync error:', err); }
 }
 
 function compDrop(e, cid) {
@@ -1609,6 +1636,7 @@ async function saveEdit() {
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="sp"></span>Saving...'; }
   var c = CLIENTS.find(function(x) { return x.id === d.id; });
   if (!c) { closeModal(); return; }
+
   var updates = {
     name:         (document.getElementById('ec-n')  || {}).value || d.name,
     email:        (document.getElementById('ec-e')  || {}).value || '',
@@ -1622,9 +1650,34 @@ async function saveEdit() {
     keywords:  d.keywords.slice(), platforms: d.platforms.slice(),
     color:  d.color || c.color,  light: d.light || c.light
   };
+
+  // 1. Update local state and close modal immediately
   Object.assign(c, updates);
-  try { await upsertClient(c); closeModal(); showToast('Client updated'); }
-  catch (err) { showToast('Error: ' + err.message, 'err'); if (btn) { btn.disabled = false; btn.innerHTML = 'Save changes'; } }
+  closeModal();
+  showToast('Client updated');
+
+  // 2. Save to Supabase in background
+  try {
+    var payload = {
+      id: c.id, name: c.name, email: c.email || '',
+      ig_handle: c.ig_handle || '', niche: c.niche || '',
+      target: c.target || '', pillars: c.pillars || [],
+      hashtags: c.hashtags || [], keywords: c.keywords || [],
+      platforms: c.platforms || [], posting_freq: c.posting_freq || '',
+      package: c.package || '', notes: c.notes || '',
+      color: c.color || '', light: c.light || '',
+      competitors: c.competitors || [], reports: c.reports || [],
+      owner_id: USER.id
+    };
+    var res = await SB.from('clients').upsert(payload, { onConflict: 'id' });
+    if (res.error) {
+      showToast('Saved locally — sync error: ' + res.error.message, 'warn');
+      console.error('Supabase upsert error:', res.error);
+    }
+  } catch (err) {
+    showToast('Saved locally — sync error: ' + err.message, 'warn');
+    console.error('Save error:', err);
+  }
 }
 
 function addCompModal() {
