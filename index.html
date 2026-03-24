@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hypnotiic Media</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#F5F3EF;--sur:#fff;--sur2:#EFEDE8;
+  --bor:#E0DBD3;--bor2:#C4BDB3;
+  --tx:#18160F;--tx2:#6A6258;--tx3:#A09890;
+  --pu:#6B5CE7;--pul:#EDE9FF;
+  --gr:#18A06E;--grl:#E3F7EF;
+  --bl:#2563EB;--bll:#EFF6FF;
+  --re:#DC2626;--rel:#FEF2F2;
+  --am:#D97706;--aml:#FFFBEB;
+  --pk:#DB2777;--pkl:#FDF2F8;
+  --r:10px;--rl:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5;min-height:100vh}
+input,select,textarea,button{font-family:inherit;font-size:13px}
+
+/* --- BUTTONS --- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border-radius:var(--r);font-weight:500;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;line-height:1}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.bp{background:var(--tx);color:#fff}.bp:hover:not(:disabled){background:#2a2a2a}
+.bs{background:var(--sur);color:var(--tx);border:1.5px solid var(--bor2)}.bs:hover:not(:disabled){background:var(--sur2)}
+.bg{background:transparent;color:var(--tx2);border:1.5px solid var(--bor)}.bg:hover:not(:disabled){background:var(--sur2);color:var(--tx)}
+.bd{background:var(--rel);color:var(--re);border:1.5px solid #fca5a5}.bd:hover:not(:disabled){background:#fee2e2}
+.bsu{background:var(--grl);color:var(--gr);border:1.5px solid #6ee7b7}
+.sm{padding:6px 12px;font-size:12px}
+.ic{padding:7px;border-radius:8px}
+
+/* --- INPUTS --- */
+.inp{width:100%;padding:9px 11px;border:1.5px solid var(--bor);border-radius:var(--r);background:var(--sur);color:var(--tx);outline:none;transition:border-color .15s}
+.inp:focus{border-color:var(--tx)}
+.inp::placeholder{color:var(--tx3)}
+textarea.inp{resize:vertical;min-height:72px}
+.lbl{font-size:11px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.fld{margin-bottom:14px}
+
+/* --- CARDS --- */
+.card{background:var(--sur);border-radius:var(--rl);border:1px solid var(--bor);padding:20px 22px;margin-bottom:12px}
+.card:last-child{margin-bottom:0}
+
+/* --- NAV --- */
+.nav{background:var(--sur);border-bottom:1px solid var(--bor);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+
+/* --- TABS --- */
+.tabs{display:flex;gap:2px;background:var(--sur2);padding:3px;border-radius:11px;margin-bottom:22px;flex-wrap:wrap}
+.tab{padding:7px 14px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--tx2);font-family:inherit;transition:all .12s;white-space:nowrap}
+.tab.on{background:var(--sur);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* --- LAYOUT --- */
+.wrap{max-width:880px;margin:0 auto;padding:28px 16px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:680px){.g2,.g3,.g4{grid-template-columns:1fr}.wrap{padding:16px 12px}}
+
+/* --- PILLS --- */
+.pill{display:inline-flex;align-items:center;gap:4px;background:var(--sur2);color:var(--tx2);font-size:11px;padding:3px 9px;border-radius:20px;margin:2px;border:1px solid var(--bor)}
+.px{background:none;border:none;cursor:pointer;color:var(--tx3);font-size:14px;line-height:1;display:flex;align-items:center;padding:0}
+.px:hover{color:var(--re)}
+
+/* --- BADGES --- */
+.bdg{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em}
+.bpu{background:var(--pul);color:var(--pu)}.bgr{background:var(--grl);color:var(--gr)}.bbl{background:var(--bll);color:var(--bl)}.bgy{background:var(--sur2);color:var(--tx2)}.bpk{background:var(--pkl);color:var(--pk)}
+
+/* --- ALERTS --- */
+.al{padding:10px 14px;border-radius:var(--r);font-size:12px;margin-bottom:14px;border:1px solid;line-height:1.5}
+.aw{background:var(--aml);border-color:#fcd34d;color:#78350f}
+.ai{background:var(--bll);border-color:#93c5fd;color:#1e3a8a}
+.as{background:var(--grl);border-color:#6ee7b7;color:#064e3b}
+.ae{background:var(--rel);border-color:#fca5a5;color:#7f1d1d}
+
+/* --- TABLE --- */
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;font-weight:600;color:var(--tx3);padding:8px 10px;border-bottom:1px solid var(--bor);text-transform:uppercase;letter-spacing:.05em}
+td{padding:10px;border-bottom:1px solid var(--sur2);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg)}
+
+/* --- DROPZONE --- */
+.dz{border:2px dashed var(--bor2);border-radius:var(--rl);padding:28px;text-align:center;background:var(--bg);transition:all .15s;cursor:pointer}
+.dz.ov{border-color:var(--pu);background:var(--pul)}
+
+/* --- MODAL --- */
+.ov-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;padding:20px;z-index:200;overflow-y:auto}
+.modal{background:var(--sur);border-radius:var(--rl);width:100%;max-width:560px;margin:auto;box-shadow:0 4px 24px rgba(0,0,0,.12)}
+.mh{padding:16px 22px;border-bottom:1px solid var(--bor);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--sur);border-radius:var(--rl) var(--rl) 0 0}
+.mb{padding:22px;max-height:72vh;overflow-y:auto}
+.mf{padding:14px 22px;border-top:1px solid var(--bor);display:flex;gap:8px;justify-content:flex-end}
+
+/* --- STEPPER --- */
+.stepper{display:flex;align-items:flex-start;margin-bottom:28px}
+.si{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+.si:not(:last-child)::after{content:'';position:absolute;top:13px;left:calc(50% + 15px);right:calc(-50% + 15px);height:2px;background:var(--bor)}
+.si.dn:not(:last-child)::after{background:var(--tx)}
+.sdot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:2px solid var(--bor);background:var(--sur);color:var(--tx2);z-index:1;position:relative;transition:all .2s}
+.si.dn .sdot{background:var(--tx);border-color:var(--tx);color:#fff}
+.si.ac .sdot{border-color:var(--tx);color:var(--tx)}
+.slbl{font-size:10px;color:var(--tx3);margin-top:5px;text-align:center;font-weight:500}
+.si.ac .slbl,.si.dn .slbl{color:var(--tx2)}
+
+/* --- SPINNER --- */
+@keyframes spin{to{transform:rotate(360deg)}}
+.sp{width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+.spd{border-color:rgba(0,0,0,.1);border-top-color:var(--tx)}
+
+/* --- TOAST --- */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);color:#fff;padding:10px 18px;border-radius:var(--r);font-size:13px;font-weight:500;z-index:999;pointer-events:none;animation:tIn .2s ease;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+@keyframes tIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fu .2s ease}
+
+/* --- MISC --- */
+hr{border:none;border-top:1px solid var(--bor);margin:18px 0}
+.sh{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);margin-bottom:12px}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.fc{display:flex;align-items:center}
+.fb{display:flex;align-items:center;justify-content:space-between}
+.mono{font-family:'DM Mono',monospace}
+.xs{font-size:11px}.sm-t{font-size:12px}.mu{color:var(--tx2)}
+
+/* --- SCORE BAR --- */
+.sbar{height:4px;background:var(--sur2);border-radius:2px;overflow:hidden;display:inline-block;vertical-align:middle}
+.sfill{height:100%;border-radius:2px;transition:width .4s}
+
+/* --- IG REPORT --- */
+.igmc{background:var(--sur);border:1px solid var(--bor);border-radius:14px;padding:16px 18px}
+.igml{font-size:11px;color:var(--tx3);font-weight:500;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.igmv{font-size:26px;font-weight:600;line-height:1.1;margin-bottom:2px}
+.igms{font-size:11px;color:var(--tx3)}
+.igbr{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sur2)}
+.igbr:last-child{border-bottom:none}
+.igbl{font-size:12px;color:var(--tx2);min-width:120px}
+.igbt{flex:1;height:6px;background:var(--sur2);border-radius:3px;overflow:hidden}
+.igbf{height:100%;border-radius:3px;transition:width .6s}
+.igbv{font-size:12px;font-weight:500;min-width:60px;text-align:right}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pth{aspect-ratio:1;border-radius:8px;background:var(--sur2);border:1px solid var(--bor);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;position:relative;overflow:hidden;text-decoration:none}
+.pth:hover{opacity:.85}
+.ptb{position:absolute;top:6px;right:6px}
+.log{background:#0f1117;border-radius:var(--r);padding:12px;height:100px;overflow-y:auto;font-family:'DM Mono',monospace;font-size:11px;margin-top:12px}
+.ll{color:#4ade80;margin-bottom:1px}.lw{color:#fbbf24;margin-bottom:1px}.le{color:#f87171;margin-bottom:1px}
+
+/* --- LOADING --- */
+.loading{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+'use strict';
+
+// ── SUPABASE ────────────────────────────────────────────────────────────────
+const SB = supabase.createClient(
+  'https://dvknzfhsgnywevhmsgns.supabase.co',
+  'sb_publishable_ehMDG_4ohfbN0XDjkvB8_A_yIwdtOgM'
+);
+
+// ── STATE ───────────────────────────────────────────────────────────────────
+let USER = null;
+let CLIENTS = [];
+
+let APP = {
+  screen: 'loading',
+  cid: null,        // current client id
+  tab: 'overview',
+  modal: null,
+  md: {},           // modal data
+  wiz: { step: 0, d: {} },
+  disc: {},         // discover state per client
+  anal: {},         // sortfeed state per client
+  rep: {},          // report state per client
+};
+
+// API keys live in localStorage only — device-specific, never sent to Supabase
+function getKeys() {
+  try { return JSON.parse(localStorage.getItem('hm_keys') || '{}'); } catch(e) { return {}; }
+}
+function storeKeys(k) {
+  localStorage.setItem('hm_keys', JSON.stringify(k));
+}
+
+// ── HELPERS ─────────────────────────────────────────────────────────────────
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function fmt(n) { return Number(n || 0).toLocaleString(); }
+function fmtK(n) {
+  n = Number(n || 0);
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return String(n);
+}
+function cc() { return CLIENTS.find(function(c) { return c.id === APP.cid; }) || null; }
+
+function set(u) { Object.assign(APP, u); render(); }
+
+function showToast(msg, type) {
+  document.querySelectorAll('.toast').forEach(function(e) { e.remove(); });
+  var el = document.createElement('div');
+  el.className = 'toast';
+  el.style.background = type === 'err' ? 'var(--re)' : type === 'warn' ? 'var(--am)' : 'var(--tx)';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(function() { el.remove(); }, 3500);
+}
+
+function addLog(msg, type) {
+  var box = document.querySelector('.log');
+  if (!box) return;
+  var d = document.createElement('div');
+  d.className = type === 'warn' ? 'lw' : type === 'err' ? 'le' : 'll';
+  var t = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  d.textContent = '[' + t + '] ' + msg;
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+}
+
+// ── SUPABASE DATA ────────────────────────────────────────────────────────────
+async function loadClients() {
+  var res = await SB.from('clients').select('*').order('created_at', { ascending: true });
+  if (res.error) { console.error('loadClients error:', res.error); return; }
+  CLIENTS = res.data || [];
+}
+
+async function upsertClient(client) {
+  // Build payload matching the exact DB schema
+  var payload = {
+    id: client.id,
+    name: client.name || '',
+    email: client.email || '',
+    ig_handle: client.ig_handle || '',
+    niche: client.niche || '',
+    target: client.target || '',
+    pillars: client.pillars || [],
+    hashtags: client.hashtags || [],
+    keywords: client.keywords || [],
+    platforms: client.platforms || [],
+    posting_freq: client.posting_freq || '',
+    package: client.package || '',
+    notes: client.notes || '',
+    color: client.color || '#6B5CE7',
+    light: client.light || '#EDE9FF',
+    competitors: client.competitors || [],
+    reports: client.reports || [],
+    owner_id: USER.id
+  };
+
+  var res = await SB.from('clients').upsert(payload, { onConflict: 'id' });
+  if (res.error) throw new Error(res.error.message);
+  await loadClients();
+}
+
+async function removeClient(id) {
+  var res = await SB.from('clients').delete().eq('id', id);
+  if (res.error) throw new Error(res.error.message);
+  await loadClients();
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  var root = document.getElementById('root');
+  if (!root) return;
+  // Remove any existing overlays and toasts before re-rendering
+  document.querySelectorAll('.ov-bg').forEach(function(e) { e.remove(); });
+
+  if      (APP.screen === 'loading')  root.innerHTML = renderLoading();
+  else if (APP.screen === 'login')    root.innerHTML = renderLogin();
+  else if (APP.screen === 'dash')     root.innerHTML = renderDash();
+  else if (APP.screen === 'wizard')   root.innerHTML = renderWizard();
+  else if (APP.screen === 'client')   root.innerHTML = renderClient();
+  else if (APP.screen === 'settings') root.innerHTML = renderSettings();
+
+  if (APP.modal) {
+    var ov = document.createElement('div');
+    ov.className = 'ov-bg';
+    ov.innerHTML = buildModal();
+    ov.addEventListener('click', function(e) { if (e.target === ov) closeModal(); });
+    document.body.appendChild(ov);
+  }
+
+  bindEvents();
+}
+
+// ── LOADING ──────────────────────────────────────────────────────────────────
+function renderLoading() {
+  return '<div class="loading">'
+    + '<div style="width:40px;height:40px;background:var(--tx);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px">H</div>'
+    + '<p class="mu sm-t">Loading...</p>'
+    + '</div>';
+}
+
+// ── LOGIN ────────────────────────────────────────────────────────────────────
+function renderLogin() {
+  return '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px">'
+    + '<div style="width:100%;max-width:340px">'
+    + '<div style="text-align:center;margin-bottom:24px">'
+    + '<div style="width:44px;height:44px;background:var(--tx);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;margin:0 auto 12px">H</div>'
+    + '<h1 style="font-size:19px;margin-bottom:4px">Hypnotiic Media</h1>'
+    + '<p class="mu sm-t">Internal tools — authorised access only</p>'
+    + '</div>'
+    + '<div class="card">'
+    + '<div class="fld"><label class="lbl">Email</label><input class="inp" id="l-em" type="email" placeholder="you@hypnotiicmedia.com"></div>'
+    + '<div class="fld"><label class="lbl">Password</label><input class="inp" id="l-pw" type="password" placeholder="••••••••"></div>'
+    + '<div id="l-err" class="al ae" style="display:none">Incorrect email or password. Contact Max to get access.</div>'
+    + '<button class="btn bp" style="width:100%;justify-content:center;margin-top:4px" id="l-btn" onclick="doLogin()">Sign in</button>'
+    + '<p class="xs mu" style="text-align:center;margin-top:10px">Contact Max to be added as a user</p>'
+    + '</div>'
+    + '</div></div>';
+}
+
+async function doLogin() {
+  var email = (document.getElementById('l-em') || {}).value || '';
+  var pass  = (document.getElementById('l-pw') || {}).value || '';
+  email = email.trim();
+  if (!email || !pass) { showToast('Enter your email and password', 'warn'); return; }
+
+  var btn = document.getElementById('l-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="sp"></span>Signing in...'; }
+  var err = document.getElementById('l-err');
+  if (err) err.style.display = 'none';
+
+  var res = await SB.auth.signInWithPassword({ email: email, password: pass });
+  if (res.error) {
+    if (err) err.style.display = 'block';
+    if (btn) { btn.disabled = false; btn.innerHTML = 'Sign in'; }
+    return;
+  }
+  USER = res.data.user;
+  await loadClients();
+  set({ screen: 'dash' });
+}
+
+async function doLogout() {
+  await SB.auth.signOut();
+  USER = null; CLIENTS = [];
+  set({ screen: 'login' });
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function renderNav(crumb) {
+  var email = USER ? USER.email : '';
+  return '<nav class="nav">'
+    + '<div class="fc" style="gap:10px">'
+    + '<div style="width:30px;height:30px;background:var(--tx);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px">H</div>'
+    + '<span style="font-weight:600;font-size:14px">Hypnotiic Media</span>'
+    + '<span class="xs mu" style="background:var(--sur2);padding:2px 8px;border-radius:20px">Internal</span>'
+    + (crumb ? '<span style="color:var(--bor2)">/</span><span class="sm-t mu">' + crumb + '</span>' : '')
+    + '</div>'
+    + '<div class="fc" style="gap:8px">'
+    + '<span class="xs mu">' + email + '</span>'
+    + '<button class="btn bg sm" onclick="set({screen:\'settings\'})">Settings</button>'
+    + '<button class="btn bg sm" onclick="set({screen:\'dash\',cid:null})">Dashboard</button>'
+    + '<button class="btn bg sm" onclick="doLogout()">Sign out</button>'
+    + '</div></nav>';
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function renderDash() {
+  var cards = CLIENTS.map(function(c) {
+    var approved = (c.competitors || []).filter(function(x) { return x.status === 'approved'; }).length;
+    return '<button onclick="set({screen:\'client\',cid:\'' + c.id + '\',tab:\'overview\'})"'
+      + ' style="text-align:left;padding:20px;border-radius:16px;border:1.5px solid ' + c.color + '30;background:' + c.light + ';cursor:pointer;width:100%;transition:all .15s;display:block"'
+      + ' onmouseover="this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 6px 20px rgba(0,0,0,.09)\'"'
+      + ' onmouseout="this.style.transform=\'none\';this.style.boxShadow=\'none\'">'
+      + '<div class="fc" style="gap:8px;margin-bottom:12px"><div class="dot" style="background:' + c.color + '"></div>'
+      + '<span class="bdg" style="background:' + c.color + '20;color:' + c.color + '">' + (c.package || 'Active') + '</span></div>'
+      + '<div style="font-size:18px;font-weight:600;margin-bottom:4px">' + c.name + '</div>'
+      + '<div class="sm-t mu" style="margin-bottom:10px">' + c.niche + '</div>'
+      + '<div class="fc" style="gap:12px">'
+      + '<span class="xs" style="color:var(--tx3)">' + approved + ' competitors</span>'
+      + '<span class="xs" style="color:var(--tx3)">' + (c.pillars || []).length + ' pillars</span>'
+      + '<span class="xs" style="color:var(--tx3)">' + (c.posting_freq || '—') + '</span>'
+      + '</div></button>';
+  }).join('');
+
+  var keys = getKeys();
+  var noKey = !keys.apify
+    ? '<div class="al ai" style="margin-top:16px">Add your Apify API key in Settings to enable competitor discovery and monthly reports. <button class="btn bs sm" style="margin-left:8px" onclick="set({screen:\'settings\'})">Settings →</button></div>'
+    : '';
+
+  return '<div class="fu">' + renderNav()
+    + '<div class="wrap">'
+    + '<div class="fb" style="margin-bottom:20px">'
+    + '<div><h1 style="margin-bottom:3px">Dashboard</h1><p class="mu sm-t">' + CLIENTS.length + ' active client' + (CLIENTS.length !== 1 ? 's' : '') + '</p></div>'
+    + '<button class="btn bp" onclick="startWizard()">+ Add new client</button>'
+    + '</div>'
+    + '<div class="g3">'
+    + cards
+    + '<button onclick="startWizard()" style="padding:20px;border-radius:16px;border:2px dashed var(--bor);background:none;cursor:pointer;color:var(--tx3);font-size:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:130px;font-family:inherit;transition:all .15s" onmouseover="this.style.borderColor=\'var(--bor2)\';this.style.color=\'var(--tx2)\'" onmouseout="this.style.borderColor=\'var(--bor)\';this.style.color=\'var(--tx3)\'">'
+    + '<span style="font-size:24px;opacity:.4">+</span>Add new client</button>'
+    + '</div>'
+    + noKey
+    + '</div></div>';
+}
+
+// ── WIZARD ────────────────────────────────────────────────────────────────────
+var COLORS = [
+  { color: '#6B5CE7', light: '#EDE9FF', name: 'Purple' },
+  { color: '#18A06E', light: '#E3F7EF', name: 'Green' },
+  { color: '#2563EB', light: '#EFF6FF', name: 'Blue' },
+  { color: '#E05A3A', light: '#FEF0EC', name: 'Coral' },
+  { color: '#D97706', light: '#FFFBEB', name: 'Amber' },
+  { color: '#DB2777', light: '#FDF2F8', name: 'Pink' }
+];
+var PKGS  = ['Starter', 'Growth', 'Dominant Expert System'];
+var FREQS = ['Daily', '6x per week', '5x per week', '4x per week', '3x per week', '2x per week', 'Weekly'];
+var PLATS = ['Instagram', 'TikTok', 'YouTube Shorts', 'Facebook', 'LinkedIn'];
+var WSTEPS = ['Basic info', 'Niche', 'Content', 'Search terms', 'Review'];
+
+function startWizard() {
+  APP.wiz = {
+    step: 0,
+    d: {
+      name: '', email: '', ig_handle: '', niche: '', target: '',
+      pillars: [], hashtags: [], keywords: [], platforms: [],
+      posting_freq: '4x per week', package: 'Starter', notes: '',
+      color: COLORS[0].color, light: COLORS[0].light
+    }
+  };
+  set({ screen: 'wizard' });
+}
+
+function renderWizard() {
+  var step = APP.wiz.step;
+  var d = APP.wiz.d;
+
+  var stepper = WSTEPS.map(function(s, i) {
+    var cls = i < step ? 'dn' : i === step ? 'ac' : '';
+    return '<div class="si ' + cls + '"><div class="sdot">' + (i < step ? '✓' : (i + 1)) + '</div>'
+      + '<div class="slbl">' + s + '</div></div>';
+  }).join('');
+
+  var content = '';
+  if (step === 0) content = wizStep0(d);
+  if (step === 1) content = wizStep1(d);
+  if (step === 2) content = wizStep2(d);
+  if (step === 3) content = wizStep3(d);
+  if (step === 4) content = wizStep4(d);
+
+  var backBtn = step === 0
+    ? '<button class="btn bg sm" onclick="set({screen:\'dash\'})">Cancel</button>'
+    : '<button class="btn bs sm" onclick="wizBack()">← Back</button>';
+
+  var nextBtn = step === 4
+    ? '<button class="btn bp sm" id="wiz-submit" onclick="wizSubmit()">Create client →</button>'
+    : '<button class="btn bp sm" onclick="wizNext()">Next →</button>';
+
+  return '<div class="fu">' + renderNav('New client')
+    + '<div class="wrap" style="max-width:600px">'
+    + '<div class="fc" style="gap:8px;margin-bottom:20px"><button class="btn bg sm" onclick="set({screen:\'dash\'})">← Cancel</button><h2>Add new client</h2></div>'
+    + '<div class="stepper">' + stepper + '</div>'
+    + '<div class="card fu"><h3 style="font-size:16px;margin-bottom:18px">' + WSTEPS[step] + '</h3>' + content + '</div>'
+    + '<div class="fb" style="margin-top:16px">' + backBtn + nextBtn + '</div>'
+    + '</div></div>';
+}
+
+function wizStep0(d) {
+  var cp = COLORS.map(function(c, i) {
+    var border = d.color === c.color ? '3px solid var(--tx)' : '2px solid transparent';
+    return '<button type="button" onclick="wizSetColor(' + i + ')" title="' + c.name + '"'
+      + ' style="width:26px;height:26px;border-radius:50%;background:' + c.color + ';border:' + border + ';cursor:pointer;transition:border .15s"></button>';
+  }).join('');
+  var pkgOpts = PKGS.map(function(p) { return '<option' + (d.package === p ? ' selected' : '') + '>' + p + '</option>'; }).join('');
+  return '<div class="fld"><label class="lbl">Client name *</label>'
+    + '<input class="inp" id="w-name" value="' + esc(d.name) + '" placeholder="e.g. Patrick" oninput="APP.wiz.d.name=this.value"></div>'
+    + '<div class="fld"><label class="lbl">Client email</label>'
+    + '<input class="inp" id="w-email" type="email" value="' + esc(d.email) + '" placeholder="client@example.com" oninput="APP.wiz.d.email=this.value"></div>'
+    + '<div class="fld"><label class="lbl">Instagram handle (no @)</label>'
+    + '<input class="inp" id="w-ig" value="' + esc(d.ig_handle) + '" placeholder="username" oninput="APP.wiz.d.ig_handle=this.value.trim().replace(\'@\',\'\')">'
+    + '<div class="xs mu" style="margin-top:4px">Used for the monthly performance report</div></div>'
+    + '<div class="fld"><label class="lbl">Package</label>'
+    + '<select class="inp" onchange="APP.wiz.d.package=this.value">' + pkgOpts + '</select></div>'
+    + '<div class="fld"><label class="lbl">Colour</label><div class="fc" style="gap:8px">' + cp + '</div></div>';
+}
+
+function wizStep1(d) {
+  return '<div class="fld"><label class="lbl">Niche — be specific *</label>'
+    + '<input class="inp" id="w-niche" value="' + esc(d.niche) + '" placeholder="e.g. Business coaching for male entrepreneurs aged 25–45" oninput="APP.wiz.d.niche=this.value">'
+    + '<div class="xs mu" style="margin-top:4px">The more specific, the better the competitor matching</div></div>'
+    + '<div class="fld"><label class="lbl">Target audience</label>'
+    + '<textarea class="inp" rows="3" placeholder="Who do they serve? Age, goals, pain points..." oninput="APP.wiz.d.target=this.value">' + esc(d.target) + '</textarea></div>';
+}
+
+function wizStep2(d) {
+  var pillHtml = pillsHtml(d.pillars, 'wizRmPillar');
+  var freqOpts = FREQS.map(function(f) { return '<option' + (d.posting_freq === f ? ' selected' : '') + '>' + f + '</option>'; }).join('');
+  var platHtml = PLATS.map(function(pl) {
+    var chk = (d.platforms || []).indexOf(pl) >= 0 ? ' checked' : '';
+    return '<label class="fc" style="gap:8px;cursor:pointer;font-size:13px">'
+      + '<input type="checkbox"' + chk + ' onchange="wizTogglePlat(\'' + pl + '\')" style="width:15px;height:15px;cursor:pointer"> ' + pl + '</label>';
+  }).join('');
+  return '<div class="fld"><label class="lbl">Content pillars</label>'
+    + '<div style="min-height:30px;margin-bottom:8px">' + (pillHtml || '<span class="xs mu">None added yet</span>') + '</div>'
+    + '<div class="fc" style="gap:8px"><input class="inp" id="wiz-pill-inp" placeholder="e.g. Mindset, Sales, Leadership" style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();wizAddPillar()}">'
+    + '<button class="btn bs sm" onclick="wizAddPillar()">Add</button></div></div>'
+    + '<div class="fld"><label class="lbl">Posting frequency</label>'
+    + '<select class="inp" onchange="APP.wiz.d.posting_freq=this.value">' + freqOpts + '</select></div>'
+    + '<div class="fld"><label class="lbl">Platforms</label>'
+    + '<div class="fc" style="gap:14px;flex-wrap:wrap">' + platHtml + '</div></div>';
+}
+
+function wizStep3(d) {
+  var hashHtml = tagsHtml(d.hashtags, 'wizRmHash', true);
+  var kwHtml   = tagsHtml(d.keywords,  'wizRmKw',   false);
+  return '<p class="sm-t mu" style="margin-bottom:16px;line-height:1.6">These are used by Apify to find competitor accounts on Instagram. Hashtags search tagged posts. Keywords search account bios and names. Use both for best results.</p>'
+    + '<div class="fld"><label class="lbl">Hashtags (no # needed)</label>'
+    + '<div style="min-height:30px;margin-bottom:8px">' + (hashHtml || '<span class="xs mu">None added yet</span>') + '</div>'
+    + '<div class="fc" style="gap:8px"><input class="inp" id="wiz-hash-inp" placeholder="businesscoach, entrepreneurmindset..." style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();wizAddHash()}">'
+    + '<button class="btn bs sm" onclick="wizAddHash()">Add</button></div></div>'
+    + '<div class="fld"><label class="lbl">Keywords (phrases to search)</label>'
+    + '<div style="min-height:30px;margin-bottom:8px">' + (kwHtml || '<span class="xs mu">None added yet</span>') + '</div>'
+    + '<div class="fc" style="gap:8px"><input class="inp" id="wiz-kw-inp" placeholder="business coach, entrepreneur mentor..." style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();wizAddKw()}">'
+    + '<button class="btn bs sm" onclick="wizAddKw()">Add</button></div>'
+    + '<div class="xs mu" style="margin-top:4px">Keywords find competitors whose bios mention these phrases</div></div>';
+}
+
+function wizStep4(d) {
+  var c = COLORS.find(function(x) { return x.color === d.color; }) || COLORS[0];
+  var ph = (d.pillars || []).map(function(p) { return '<span class="pill">' + p + '</span>'; }).join('') || '<span class="xs mu">None</span>';
+  var hh = (d.hashtags || []).map(function(h) { return '<span class="pill">#' + h + '</span>'; }).join('') || '<span class="xs mu">None</span>';
+  var kh = (d.keywords  || []).map(function(k) { return '<span class="pill">' + k + '</span>'; }).join('') || '<span class="xs mu">None</span>';
+  return '<div style="background:' + d.light + ';border-radius:12px;padding:16px;margin-bottom:16px;border:1.5px solid ' + d.color + '30">'
+    + '<div class="fc" style="gap:8px;margin-bottom:8px"><div class="dot" style="background:' + d.color + '"></div>'
+    + '<span class="bdg" style="background:' + d.color + '20;color:' + d.color + '">' + d.package + '</span></div>'
+    + '<div style="font-size:18px;font-weight:600;margin-bottom:3px">' + (d.name || 'Client name') + '</div>'
+    + '<div class="sm-t mu">' + (d.niche || 'No niche set') + '</div>'
+    + (d.ig_handle ? '<div class="xs" style="color:' + d.color + ';margin-top:5px">@' + d.ig_handle + '</div>' : '')
+    + '</div>'
+    + '<div class="g2" style="margin-bottom:12px">'
+    + '<div><div class="sh">Posting</div><span class="sm-t">' + d.posting_freq + '</span></div>'
+    + '<div><div class="sh">Package</div><span class="sm-t">' + d.package + '</span></div>'
+    + '</div><hr>'
+    + '<div style="margin-bottom:10px"><div class="sh">Content pillars</div>' + ph + '</div>'
+    + '<div style="margin-bottom:10px"><div class="sh">Hashtags</div>' + hh + '</div>'
+    + '<div><div class="sh">Keywords</div>' + kh + '</div>';
+}
+
+// Wizard helpers
+function wizAddPillar() {
+  var i = document.getElementById('wiz-pill-inp'); if (!i) return;
+  var v = i.value.trim(); if (!v) return;
+  if (APP.wiz.d.pillars.indexOf(v) < 0) APP.wiz.d.pillars.push(v);
+  i.value = ''; render(); setTimeout(function() { var x = document.getElementById('wiz-pill-inp'); if (x) x.focus(); }, 30);
+}
+function wizRmPillar(v) { APP.wiz.d.pillars = APP.wiz.d.pillars.filter(function(x) { return x !== v; }); render(); }
+function wizAddHash() {
+  var i = document.getElementById('wiz-hash-inp'); if (!i) return;
+  var v = i.value.trim().replace('#', '').replace(/\s/g, ''); if (!v) return;
+  if (APP.wiz.d.hashtags.indexOf(v) < 0) APP.wiz.d.hashtags.push(v);
+  i.value = ''; render(); setTimeout(function() { var x = document.getElementById('wiz-hash-inp'); if (x) x.focus(); }, 30);
+}
+function wizRmHash(v) { APP.wiz.d.hashtags = APP.wiz.d.hashtags.filter(function(x) { return x !== v; }); render(); }
+function wizAddKw() {
+  var i = document.getElementById('wiz-kw-inp'); if (!i) return;
+  var v = i.value.trim(); if (!v) return;
+  if (APP.wiz.d.keywords.indexOf(v) < 0) APP.wiz.d.keywords.push(v);
+  i.value = ''; render(); setTimeout(function() { var x = document.getElementById('wiz-kw-inp'); if (x) x.focus(); }, 30);
+}
+function wizRmKw(v) { APP.wiz.d.keywords = APP.wiz.d.keywords.filter(function(x) { return x !== v; }); render(); }
+function wizTogglePlat(pl) { var ps = APP.wiz.d.platforms; var i = ps.indexOf(pl); if (i >= 0) ps.splice(i, 1); else ps.push(pl); }
+function wizSetColor(i) { APP.wiz.d.color = COLORS[i].color; APP.wiz.d.light = COLORS[i].light; render(); }
+
+function wizNext() {
+  var d = APP.wiz.d;
+  if (APP.wiz.step === 0 && !d.name.trim()) { showToast('Client name is required', 'warn'); return; }
+  if (APP.wiz.step === 1 && !d.niche.trim()) { showToast('Niche is required', 'warn'); return; }
+  APP.wiz.step++; render();
+}
+function wizBack() { APP.wiz.step--; render(); }
+
+async function wizSubmit() {
+  var d = APP.wiz.d;
+  if (!d.name.trim()) { showToast('Client name is required', 'warn'); return; }
+  var btn = document.getElementById('wiz-submit');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="sp"></span>Saving...'; }
+  try {
+    var newClient = {
+      id: d.name.toLowerCase().replace(/\s+/g, '-') + '-' + uid(),
+      name: d.name, email: d.email, ig_handle: d.ig_handle,
+      niche: d.niche, target: d.target,
+      pillars: d.pillars, hashtags: d.hashtags, keywords: d.keywords,
+      platforms: d.platforms, posting_freq: d.posting_freq,
+      package: d.package, notes: d.notes,
+      color: d.color, light: d.light,
+      competitors: [], reports: []
+    };
+    await upsertClient(newClient);
+    showToast(d.name + ' added successfully!');
+    set({ screen: 'dash' });
+  } catch (err) {
+    showToast('Error saving client: ' + err.message, 'err');
+    if (btn) { btn.disabled = false; btn.innerHTML = 'Create client →'; }
+  }
+}
+
+// ── CLIENT PAGE ───────────────────────────────────────────────────────────────
+function renderClient() {
+  var c = cc();
+  if (!c) { set({ screen: 'dash' }); return ''; }
+
+  var tabs = [
+    { id: 'overview',   l: 'Overview' },
+    { id: 'competitors',l: 'Competitors' },
+    { id: 'discover',   l: 'Discover' },
+    { id: 'analyse',    l: 'SortFeed' },
+    { id: 'report',     l: 'Monthly Report' }
+  ];
+
+  var tbHtml = tabs.map(function(t) {
+    return '<button class="tab' + (APP.tab === t.id ? ' on' : '') + '" onclick="set({tab:\'' + t.id + '\'})">' + t.l + '</button>';
+  }).join('');
+
+  var content = '';
+  if (APP.tab === 'overview')    content = renderOverview(c);
+  if (APP.tab === 'competitors') content = renderCompetitors(c);
+  if (APP.tab === 'discover')    content = renderDiscover(c);
+  if (APP.tab === 'analyse')     content = renderAnalyse(c);
+  if (APP.tab === 'report')      content = renderReport(c);
+
+  return '<div class="fu">' + renderNav(c.name)
+    + '<div class="wrap">'
+    + '<div class="fc" style="gap:8px;margin-bottom:16px"><button class="btn bg sm" onclick="set({screen:\'dash\',cid:null})">← Dashboard</button></div>'
+    + '<div class="fb" style="margin-bottom:20px">'
+    + '<div>'
+    + '<div class="fc" style="gap:10px;margin-bottom:8px">'
+    + '<div class="dot" style="background:' + c.color + ';width:10px;height:10px"></div>'
+    + '<h1>' + c.name + '</h1>'
+    + '<span class="bdg" style="background:' + c.light + ';color:' + c.color + '">' + (c.package || 'Active') + '</span>'
+    + '</div>'
+    + '<p class="mu sm-t">' + c.niche + '</p>'
+    + '</div>'
+    + '<button class="btn bs sm" onclick="openModal(\'edit\')">Edit client</button>'
+    + '</div>'
+    + '<div class="tabs">' + tbHtml + '</div>'
+    + '<div class="fu">' + content + '</div>'
+    + '</div></div>';
+}
+
+// ── OVERVIEW ──────────────────────────────────────────────────────────────────
+function renderOverview(c) {
+  var ph = (c.pillars   || []).map(function(p) { return '<span class="pill">' + p + '</span>'; }).join('') || '<span class="xs mu">None added — edit client to add</span>';
+  var hh = (c.hashtags  || []).map(function(h) { return '<span class="pill">#' + h + '</span>'; }).join('') || '<span class="xs mu">None</span>';
+  var kh = (c.keywords  || []).map(function(k) { return '<span class="pill">' + k + '</span>'; }).join('') || '<span class="xs mu">None</span>';
+  var approved = (c.competitors || []).filter(function(x) { return x.status === 'approved'; }).length;
+
+  return '<div class="g2">'
+    + '<div class="card" style="margin-bottom:0"><div class="sh">Contact</div>'
+    + '<div style="font-size:13px;font-weight:500;margin-bottom:3px">' + (c.email || 'No email') + '</div>'
+    + (c.ig_handle
+      ? '<a href="https://www.instagram.com/' + c.ig_handle + '/" target="_blank" class="sm-t" style="color:var(--pu)">@' + c.ig_handle + ' ↗</a>'
+      : '<span class="xs mu">No Instagram handle set</span>')
+    + '</div>'
+    + '<div class="card" style="margin-bottom:0"><div class="sh">Package</div>'
+    + '<div style="font-size:16px;font-weight:600;margin-bottom:3px">' + (c.package || '—') + '</div>'
+    + '<div class="xs mu">' + (c.posting_freq || '—') + ' · ' + approved + ' competitors</div>'
+    + '</div>'
+    + '</div>'
+    + '<div class="card" style="margin-top:12px"><div class="sh">Target audience</div>'
+    + '<p class="sm-t">' + (c.target || 'Not set') + '</p></div>'
+    + '<div class="card"><div class="sh">Content pillars</div>' + ph + '</div>'
+    + '<div class="card"><div class="sh">Hashtags (used for discovery)</div>' + hh + '</div>'
+    + '<div class="card"><div class="sh">Keywords (used for discovery)</div>' + kh + '</div>'
+    + (c.notes ? '<div class="card"><div class="sh">Notes</div><p class="sm-t">' + c.notes + '</p></div>' : '')
+    + '<div style="margin-top:16px"><button class="btn bd sm" onclick="deleteClient(\'' + c.id + '\')">Delete this client</button></div>';
+}
+
+async function deleteClient(id) {
+  if (!confirm('Delete this client and all their data? This cannot be undone.')) return;
+  try { await removeClient(id); set({ screen: 'dash', cid: null }); showToast('Client deleted'); }
+  catch (err) { showToast('Error: ' + err.message, 'err'); }
+}
+
+// ── COMPETITORS ───────────────────────────────────────────────────────────────
+function renderCompetitors(c) {
+  var approved = (c.competitors || []).filter(function(x) { return x.status === 'approved'; });
+  var pending  = (c.competitors || []).filter(function(x) { return x.status === 'pending'; });
+
+  function scColor(s) { return s >= 80 ? 'var(--pu)' : s >= 60 ? 'var(--gr)' : 'var(--tx3)'; }
+
+  function row(a, showApprove) {
+    var igUrl = 'https://www.instagram.com/' + a.username + '/';
+    return '<tr>'
+      + '<td><a href="' + igUrl + '" target="_blank" style="font-weight:600;color:var(--tx);text-decoration:none">@' + a.username + ' <span class="xs" style="color:var(--bl)">↗</span></a></td>'
+      + '<td>' + fmt(a.followers) + '</td>'
+      + '<td><div class="fc" style="gap:8px"><span style="font-weight:700;color:' + scColor(a.score || 0) + ';font-size:14px">' + (a.score || '—') + '</span>'
+      + '<div class="sbar" style="width:48px"><div class="sfill" style="width:' + (a.score || 0) + '%;background:' + scColor(a.score || 0) + '"></div></div></div></td>'
+      + '<td>' + (a.viral_posts || '—') + '</td>'
+      + '<td>' + (a.best_views ? fmtK(a.best_views) : '—') + '</td>'
+      + '<td><div class="fc" style="gap:6px">'
+      + (showApprove ? '<button class="btn bsu sm" onclick="approveComp(\'' + c.id + '\',\'' + a.username + '\')">Approve</button>' : '')
+      + '<button class="btn bd sm" onclick="removeComp(\'' + c.id + '\',\'' + a.username + '\')">Remove</button>'
+      + '</div></td>'
+      + '</tr>';
+  }
+
+  return '<div class="card">'
+    + '<div class="fb" style="margin-bottom:16px">'
+    + '<div><h2 style="margin-bottom:2px">Competitor list</h2><p class="xs mu">' + approved.length + ' approved · ' + pending.length + ' pending review</p></div>'
+    + '<button class="btn bp sm" onclick="openModal(\'add-comp\')">+ Add manually</button>'
+    + '</div>'
+    + (pending.length
+      ? '<div class="al aw">' + pending.length + ' account' + (pending.length > 1 ? 's' : '') + ' pending review — approve or remove below</div>'
+      + '<div class="sh" style="margin-bottom:8px">Pending review</div>'
+      + '<div style="overflow-x:auto;margin-bottom:20px"><table>'
+      + '<thead><tr><th>Account</th><th>Followers</th><th>Score /100</th><th>Viral posts</th><th>Best views</th><th>Action</th></tr></thead>'
+      + '<tbody>' + pending.map(function(a) { return row(a, true); }).join('') + '</tbody>'
+      + '</table></div>' : '')
+    + '<div class="sh" style="margin-bottom:8px">Approved competitors</div>'
+    + (approved.length
+      ? '<div style="overflow-x:auto"><table>'
+        + '<thead><tr><th>Account</th><th>Followers</th><th>Score /100</th><th>Viral posts</th><th>Best views</th><th>Action</th></tr></thead>'
+        + '<tbody>' + approved.map(function(a) { return row(a, false); }).join('') + '</tbody>'
+        + '</table></div>'
+      : '<div style="text-align:center;padding:24px 0"><p style="font-size:15px;font-weight:600;margin-bottom:6px">No approved competitors yet</p><p class="sm-t mu">Add manually or use the Discover tab to find them automatically</p></div>')
+    + '</div>'
+    + '<div class="card"><h2 style="margin-bottom:4px">Upload competitor CSV</h2>'
+    + '<p class="sm-t mu" style="margin-bottom:14px">CSV needs a column called <span class="mono">username</span> or <span class="mono">handle</span>. Followers column is optional.</p>'
+    + '<div class="dz" id="comp-dz" ondragover="event.preventDefault();this.classList.add(\'ov\')" ondragleave="this.classList.remove(\'ov\')" ondrop="compDrop(event,\'' + c.id + '\')">'
+    + '<p class="sm-t mu" style="margin-bottom:8px">Drop CSV here</p>'
+    + '<label class="btn bs sm" style="cursor:pointer">Browse files<input type="file" accept=".csv" style="display:none" onchange="compFileInput(event,\'' + c.id + '\')"></label>'
+    + '</div></div>';
+}
+
+async function approveComp(cid, username) {
+  var c = CLIENTS.find(function(x) { return x.id === cid; }); if (!c) return;
+  c.competitors = c.competitors.map(function(x) { return x.username === username ? Object.assign({}, x, { status: 'approved' }) : x; });
+  try { await upsertClient(c); render(); showToast('@' + username + ' approved'); }
+  catch (err) { showToast('Error: ' + err.message, 'err'); }
+}
+
+async function removeComp(cid, username) {
+  if (!confirm('Remove @' + username + ' from competitors?')) return;
+  var c = CLIENTS.find(function(x) { return x.id === cid; }); if (!c) return;
+  c.competitors = c.competitors.filter(function(x) { return x.username !== username; });
+  try { await upsertClient(c); render(); showToast('Removed'); }
+  catch (err) { showToast('Error: ' + err.message, 'err'); }
+}
+
+function compDrop(e, cid) {
+  e.preventDefault();
+  var dz = document.getElementById('comp-dz'); if (dz) dz.classList.remove('ov');
+  var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) parseCompCSV(f, cid);
+}
+function compFileInput(e, cid) {
+  var f = e.target && e.target.files && e.target.files[0];
+  if (f) parseCompCSV(f, cid);
+}
+
+function parseCompCSV(file, cid) {
+  var reader = new FileReader();
+  reader.onload = async function(ev) {
+    var lines = ev.target.result.trim().split('\n');
+    if (lines.length < 2) { showToast('CSV is empty or has no data rows', 'warn'); return; }
+    var headers = lines[0].toLowerCase().split(',').map(function(h) { return h.trim().replace(/"/g, ''); });
+    var uCol = headers.findIndex(function(h) { return ['username','handle','account','user'].some(function(p) { return h.indexOf(p) >= 0; }); });
+    var fCol = headers.findIndex(function(h) { return h.indexOf('follow') >= 0; });
+    if (uCol < 0) { showToast('CSV needs a username or handle column', 'err'); return; }
+    var c = CLIENTS.find(function(x) { return x.id === cid; }); if (!c) return;
+    var added = 0;
+    for (var i = 1; i < lines.length; i++) {
+      var cols = lines[i].split(',').map(function(x) { return x.trim().replace(/"/g, '').replace('@', ''); });
+      var u = cols[uCol] && cols[uCol].trim();
+      if (!u || u.length < 2) continue;
+      if (c.competitors.find(function(x) { return x.username === u; })) continue;
+      c.competitors.push({ username: u, status: 'pending', followers: fCol >= 0 ? (parseInt(cols[fCol].replace(/,/g,'')) || 0) : 0, score: 0, viral_posts: 0, best_views: 0 });
+      added++;
+    }
+    try { await upsertClient(c); render(); showToast(added + ' competitor' + (added !== 1 ? 's' : '') + ' uploaded — review and approve above'); }
+    catch (err) { showToast('Error saving: ' + err.message, 'err'); }
+  };
+  reader.readAsText(file);
+}
+
+// ── DISCOVER ──────────────────────────────────────────────────────────────────
+function renderDiscover(c) {
+  var ds = APP.disc[c.id] || {};
+  var results = ds.results || [];
+  var running = !!ds.running;
+  var keys = getKeys();
+  var hasApify = !!keys.apify;
+  var hasSerpApi = !!keys.serpapi;
+  var hasTerms = (c.hashtags || []).length > 0 || (c.keywords || []).length > 0;
+
+  var sourceCount = (hasApify ? 2 : 0) + (hasSerpApi ? 1 : 0);
+
+  var rows = results.map(function(a, i) {
+    var sc = a.score >= 80 ? 'var(--pu)' : a.score >= 60 ? 'var(--gr)' : 'var(--am)';
+    var srcBadge = a.source === 'google' ? '<span class="bdg bbl" style="font-size:9px;margin-left:4px">Google</span>'
+      : a.source === 'profile' ? '<span class="bdg bgr" style="font-size:9px;margin-left:4px">Profile</span>'
+      : '<span class="bdg bgy" style="font-size:9px;margin-left:4px">Hashtag</span>';
+    var sweetSpot = a.followers >= 50000 && a.followers <= 500000;
+    return '<div style="display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:' + (i < results.length - 1 ? '1px solid var(--sur2)' : 'none') + '">'
+      + '<span style="font-size:13px;font-weight:700;color:var(--bor2);width:28px;flex-shrink:0">#' + (i + 1) + '</span>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">'
+      + '<a href="https://www.instagram.com/' + a.username + '/" target="_blank" style="font-weight:600;color:var(--tx);text-decoration:none;font-size:13px">@' + a.username + ' <span class="xs" style="color:var(--bl)">↗</span></a>'
+      + srcBadge
+      + (sweetSpot ? '<span class="bdg bgr" style="font-size:9px">Sweet spot</span>' : '')
+      + '</div>'
+      + '<div class="xs mu" style="margin-top:3px">' + fmt(a.followers) + ' followers · engagement: ' + (a.engRate || '—') + '%</div>'
+      + '</div>'
+      + '<div style="text-align:right;margin-right:10px;flex-shrink:0">'
+      + '<div style="font-size:16px;font-weight:700;color:' + sc + '">' + a.score + '</div>'
+      + '<div class="xs mu">/ 100</div>'
+      + '</div>'
+      + '<button class="btn bsu sm" style="flex-shrink:0" onclick="discAdd(\'' + c.id + '\',\'' + a.username + '\',' + a.followers + ',' + a.score + ',' + (a.viral_posts || 0) + ',' + (a.best_views || 0) + ')">+ Add</button>'
+      + '</div>';
+  }).join('');
+
+  var statusBadges = '<div class="fc" style="gap:8px;flex-wrap:wrap;margin-bottom:14px">'
+    + '<span class="bdg ' + (hasApify ? 'bgr' : 'bgy') + '">' + (hasApify ? '✓' : '✗') + ' Apify</span>'
+    + '<span class="bdg ' + (hasSerpApi ? 'bgr' : 'bgy') + '">' + (hasSerpApi ? '✓' : '✗') + ' SerpApi (Google)</span>'
+    + '<span class="bdg bgy" style="opacity:.5">PhantomBuster — coming soon</span>'
+    + '</div>';
+
+  var termsSummary = '<div class="al ai" style="font-size:12px">'
+    + '<strong>Hashtags:</strong> ' + ((c.hashtags || []).map(function(h) { return '#' + h; }).join(', ') || 'none') + '<br>'
+    + '<strong>Keywords:</strong> ' + ((c.keywords || []).join(', ') || 'none')
+    + '</div>';
+
+  return '<div class="card">'
+    + '<h2 style="margin-bottom:4px">Auto-discover competitors for ' + c.name + '</h2>'
+    + '<p class="sm-t mu" style="margin-bottom:14px;line-height:1.6">'
+    + 'Runs ' + sourceCount + ' parallel search' + (sourceCount !== 1 ? 'es' : '') + ' — Apify hashtag scraper, Apify profile search'
+    + (hasSerpApi ? ', and Google search via SerpApi' : '') + '. '
+    + 'Results are scored out of 100 and ranked from closest match to least close. Minimum score 30 to appear.</p>'
+    + statusBadges
+    + (!hasApify ? '<div class="al aw">Apify API key required. <button class="btn bs sm" style="margin-left:8px" onclick="set({screen:\'settings\'})">Add in Settings →</button></div>' : '')
+    + (!hasSerpApi ? '<div class="al ai" style="font-size:11px">Add a SerpApi key in Settings to also search Google for Instagram accounts — finds competitors that hashtags miss.</div>' : '')
+    + (!hasTerms ? '<div class="al aw">No hashtags or keywords set. Click <strong>Edit client</strong> above to add some.</div>' : termsSummary)
+    + '<div class="fc" style="gap:8px">'
+    + '<button class="btn bp" onclick="runDiscover(\'' + c.id + '\')" ' + (running || !hasTerms || !hasApify ? 'disabled' : '') + '>'
+    + (running ? '<span class="sp"></span>Searching...' : 'Run competitor discovery')
+    + '</button>'
+    + (results.length ? '<button class="btn bs sm" onclick="discAddAll(\'' + c.id + '\')">Add all ' + results.length + '</button>'
+      + '<button class="btn bg sm" onclick="APP.disc[\'' + c.id + '\']={}; render()">Clear</button>' : '')
+    + '</div>'
+    + (running ? '<div class="log" id="disc-log"></div>' : '')
+    + '</div>'
+    + (results.length
+      ? '<div class="card" style="padding:0;overflow:hidden">'
+        + '<div class="fb" style="padding:14px 20px;border-bottom:1px solid var(--bor)">'
+        + '<h3>Found ' + results.length + ' competitor' + (results.length !== 1 ? 's' : '') + ' — ranked best match first</h3>'
+        + '</div>'
+        + '<div style="padding:0 20px">' + rows + '</div>'
+        + '</div>'
+      : '');
+}
+
+async function runDiscover(cid) {
+  var keys = getKeys();
+  if (!keys.apify) { showToast('Add your Apify API key in Settings first', 'warn'); return; }
+  if (!APP.disc[cid]) APP.disc[cid] = {};
+  APP.disc[cid].running = true;
+  APP.disc[cid].results = [];
+  render();
+  var c = CLIENTS.find(function(x) { return x.id === cid; });
+  try { await realDiscover(cid, c, keys); }
+  catch (err) { APP.disc[cid].running = false; render(); showToast('Discovery error: ' + err.message, 'err'); }
+}
+
+async function realDiscover(cid, c, keys) {
+  var accounts = {};
+  var log = function(m, t) { APP.disc[cid].progress = m; render(); addLog(m, t); };
+  var token = keys.apify;
+
+  // ── SOURCE 1: Apify hashtag scraper ───────────────────────────────────────
+  var hashtags = (c.hashtags || []).slice(0, 6);
+  for (var hi = 0; hi < hashtags.length; hi++) {
+    var tag = hashtags[hi];
+    log('Apify: scraping #' + tag + '...');
+    try {
+      var r1 = await fetch('https://api.apify.com/v2/acts/apify~instagram-hashtag-scraper/runs?token=' + token, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hashtags: [tag], resultsLimit: 50, addParentData: true })
+      });
+      if (!r1.ok) { log('Hashtag #' + tag + ' failed', 'warn'); continue; }
+      var d1 = await r1.json();
+      var runId1 = d1 && d1.data && d1.data.id;
+      if (!runId1) continue;
+      var dsId1 = await pollRun(runId1, token, log);
+      if (!dsId1) { log('#' + tag + ' timed out', 'warn'); continue; }
+      var items1 = await (await fetch('https://api.apify.com/v2/datasets/' + dsId1 + '/items?token=' + token)).json();
+      if (!Array.isArray(items1)) continue;
+      for (var j = 0; j < items1.length; j++) {
+        var item = items1[j];
+        var u = item && item.ownerUsername;
+        if (!u || accounts[u]) continue;
+        var f = item.ownerFollowersCount || item.followersCount || 0;
+        // Only hard-filter if we actually have follower data
+        if (f > 0 && (f < 30000 || f > 1000000)) continue;
+        var likes = item.likesCount || 0;
+        var cmts = item.commentsCount || 0;
+        var eng = f > 0 ? ((likes + cmts) / f * 100) : 1.5;
+        if (eng > 25) continue;
+        accounts[u] = { username: u, followers: f, bio: item.ownerBio || '', fullName: item.ownerFullName || '', engagement: Math.round(eng * 100) / 100, source: 'hashtag' };
+      }
+      log('Accounts collected so far: ' + Object.keys(accounts).length);
+    } catch (e) { log('Error on #' + tag + ': ' + e.message, 'warn'); }
+  }
+
+  // ── SOURCE 2: Apify profile/keyword search ────────────────────────────────
+  var keywords = (c.keywords || []).slice(0, 4);
+  for (var ki = 0; ki < keywords.length; ki++) {
+    var kw = keywords[ki];
+    log('Apify: profile search for "' + kw + '"...');
+    try {
+      var r2 = await fetch('https://api.apify.com/v2/acts/apify~instagram-search-scraper/runs?token=' + token, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ searchQuery: kw, searchType: 'accounts', maxItems: 30 })
+      });
+      if (!r2.ok) { log('Profile search unavailable for "' + kw + '"', 'warn'); continue; }
+      var d2 = await r2.json();
+      var runId2 = d2 && d2.data && d2.data.id;
+      if (!runId2) continue;
+      var dsId2 = await pollRun(runId2, token, log);
+      if (!dsId2) continue;
+      var items2 = await (await fetch('https://api.apify.com/v2/datasets/' + dsId2 + '/items?token=' + token)).json();
+      if (!Array.isArray(items2)) continue;
+      for (var k = 0; k < items2.length; k++) {
+        var p = items2[k];
+        var pu = p && (p.username || p.ownerUsername);
+        if (!pu || accounts[pu]) continue;
+        var pf = p.followersCount || p.ownerFollowersCount || 0;
+        if (pf > 0 && (pf < 30000 || pf > 1000000)) continue;
+        accounts[pu] = { username: pu, followers: pf, bio: p.biography || p.ownerBio || '', fullName: p.fullName || p.ownerFullName || '', engagement: 1.5, source: 'profile' };
+      }
+      log('Accounts collected so far: ' + Object.keys(accounts).length);
+    } catch (e) { log('Profile search error for "' + kw + '": ' + e.message, 'warn'); }
+  }
+
+  // ── SOURCE 3: SerpApi Google search ──────────────────────────────────────
+  if (keys.serpapi) {
+    log('Google: searching for Instagram accounts in niche...');
+    var searchTerms = [
+      'site:instagram.com ' + c.niche,
+      'instagram ' + (c.keywords || []).slice(0, 2).join(' OR ') + ' coach',
+    ];
+    for (var si = 0; si < searchTerms.length; si++) {
+      try {
+        var serpRes = await fetch('https://serpapi.com/search.json?q=' + encodeURIComponent(searchTerms[si]) + '&num=20&api_key=' + keys.serpapi);
+        if (!serpRes.ok) { log('SerpApi search failed', 'warn'); continue; }
+        var serpData = await serpRes.json();
+        var organicResults = (serpData && serpData.organic_results) || [];
+        var usernames = [];
+        for (var oi = 0; oi < organicResults.length; oi++) {
+          var link = organicResults[oi].link || '';
+          var match = link.match(/instagram\.com\/([A-Za-z0-9._]+)\/?/);
+          if (match && match[1] && match[1] !== 'p' && match[1] !== 'explore') {
+            usernames.push(match[1]);
+          }
+        }
+        log('Google found ' + usernames.length + ' Instagram usernames — verifying with Apify...');
+        // Verify Google-found usernames via Apify profile scraper
+        if (usernames.length > 0) {
+          var profileUrls = usernames.slice(0, 10).map(function(u) { return 'https://www.instagram.com/' + u + '/'; });
+          var r3 = await fetch('https://api.apify.com/v2/acts/apify~instagram-scraper/runs?token=' + token, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ directUrls: profileUrls, resultsType: 'details', resultsLimit: 10 })
+          });
+          if (r3.ok) {
+            var d3 = await r3.json();
+            var runId3 = d3 && d3.data && d3.data.id;
+            if (runId3) {
+              var dsId3 = await pollRun(runId3, token, log);
+              if (dsId3) {
+                var items3 = await (await fetch('https://api.apify.com/v2/datasets/' + dsId3 + '/items?token=' + token)).json();
+                if (Array.isArray(items3)) {
+                  for (var gi = 0; gi < items3.length; gi++) {
+                    var gp = items3[gi];
+                    var gu = gp && (gp.username || gp.ownerUsername);
+                    if (!gu || accounts[gu]) continue;
+                    var gf = gp.followersCount || gp.ownerFollowersCount || 0;
+                    if (gf < 30000 || gf > 1000000) continue;
+                    accounts[gu] = { username: gu, followers: gf, bio: gp.biography || gp.ownerBio || '', fullName: gp.fullName || gp.ownerFullName || '', engagement: 1.5, source: 'google' };
+                  }
+                }
+              }
+            }
+          }
+        }
+        log('Total after Google search: ' + Object.keys(accounts).length);
+      } catch (e) { log('SerpApi error: ' + e.message, 'warn'); }
+    }
+  }
+
+  // ── SCORE all accounts ────────────────────────────────────────────────────
+  log('Scoring ' + Object.keys(accounts).length + ' accounts...');
+
+  if (Object.keys(accounts).length === 0) {
+    APP.disc[cid].running = false;
+    APP.disc[cid].results = [];
+    render();
+    showToast('No accounts found — try different hashtags or check Apify has credits', 'warn');
+    return;
+  }
+
+  var kwList = [(c.niche || '').toLowerCase()]
+    .concat((c.pillars || []).map(function(p) { return p.toLowerCase(); }))
+    .concat((c.keywords || []).map(function(k) { return k.toLowerCase(); }))
+    .filter(function(k) { return k.length > 2; });
+
+  var scored = Object.values(accounts).map(function(a) {
+    var bio = (a.bio + ' ' + a.fullName).toLowerCase();
+
+    // Engagement score — 30 points
+    var eng = a.engagement || 1.5;
+    var es = eng >= 5 ? 30 : eng >= 3 ? 25 : eng >= 1.5 ? 18 : eng >= 0.8 ? 10 : 5;
+
+    // Bio keyword match — 25 points
+    var bm = 0;
+    kwList.forEach(function(kw) { if (bio.indexOf(kw) >= 0) bm += 5; });
+    bm = Math.min(bm, 25);
+
+    // Niche relevance — 25 points
+    var nicheWords = (c.niche || '').toLowerCase().split(' ').filter(function(w) { return w.length > 3; });
+    var nm = 0;
+    nicheWords.forEach(function(w) { if (bio.indexOf(w) >= 0) nm += 4; });
+    nm = Math.min(nm, 25);
+
+    // Follower sweet spot — 20 points
+    var f = a.followers;
+    var fs = 10; // default if no follower data
+    if (f > 0) {
+      fs = (f >= 50000 && f <= 500000) ? 20
+         : (f >= 30000 && f < 50000)   ? 14
+         : (f > 500000 && f <= 750000)  ? 14
+         : (f > 750000 && f <= 1000000) ? 8
+         : 4;
+    }
+
+    var total = Math.min(Math.round(es + bm + nm + fs), 100);
+    return {
+      username: a.username,
+      followers: a.followers,
+      score: total,
+      engRate: eng.toFixed(2),
+      viral_posts: Math.max(1, Math.floor(eng / 2)),
+      best_views: Math.floor((a.followers || 10000) * eng / 100 * 8),
+      source: a.source || 'hashtag'
+    };
+  })
+  .filter(function(a) { return a.score >= 20; })           // lowered threshold to 20
+  .sort(function(a, b) { return b.score - a.score; })
+  .slice(0, 100);
+
+  APP.disc[cid].running = false;
+  APP.disc[cid].results = scored;
+  render();
+
+  var msg = scored.length >= 25
+    ? 'Found ' + scored.length + ' competitors — ranked best match first'
+    : scored.length > 0
+    ? 'Found ' + scored.length + ' matches — try more hashtags/keywords for a larger list'
+    : 'Accounts were found but none scored high enough — try broader hashtags';
+  showToast(msg, scored.length > 0 ? 'ok' : 'warn');
+}
+
+async function pollRun(runId, token, log) {
+  for (var i = 0; i < 60; i++) {
+    await sleep(5000);
+    try {
+      var r = await fetch('https://api.apify.com/v2/actor-runs/' + runId + '?token=' + token);
+      var d = await r.json();
+      var status = d && d.data && d.data.status;
+      if (log) log('Status: ' + status);
+      if (status === 'SUCCEEDED') return d.data.defaultDatasetId;
+      if (status === 'FAILED' || status === 'ABORTED' || status === 'TIMED-OUT') return null;
+    } catch (e) { /* keep polling */ }
+  }
+  return null;
+}
+
+function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+async function discAdd(cid, username, followers, score, viral_posts, best_views) {
+  var c = CLIENTS.find(function(x) { return x.id === cid; });
+  if (!c) return;
+  if (c.competitors.find(function(x) { return x.username === username; })) {
+    showToast('Already in list', 'warn'); return;
+  }
+
+  // 1. Update local state immediately so the UI responds right away
+  c.competitors.push({
+    username: username, followers: followers, score: score,
+    viral_posts: viral_posts, best_views: best_views, status: 'approved'
+  });
+
+  // 2. Remove from discover results immediately
+  if (APP.disc[cid] && APP.disc[cid].results) {
+    APP.disc[cid].results = APP.disc[cid].results.filter(function(x) {
+      return x.username !== username;
+    });
+  }
+
+  // 3. Render immediately — user sees it straight away
+  render();
+  showToast('@' + username + ' added to competitors');
+
+  // 4. Save to Supabase in background
+  try {
+    var payload = {
+      id: c.id, name: c.name, email: c.email || '',
+      ig_handle: c.ig_handle || '', niche: c.niche || '',
+      target: c.target || '', pillars: c.pillars || [],
+      hashtags: c.hashtags || [], keywords: c.keywords || [],
+      platforms: c.platforms || [], posting_freq: c.posting_freq || '',
+      package: c.package || '', notes: c.notes || '',
+      color: c.color || '', light: c.light || '',
+      competitors: c.competitors, reports: c.reports || [],
+      owner_id: USER.id
+    };
+    var res = await SB.from('clients').upsert(payload, { onConflict: 'id' });
+    if (res.error) { showToast('Saved locally — Supabase sync failed: ' + res.error.message, 'warn'); }
+  } catch (err) {
+    showToast('Saved locally — sync error: ' + err.message, 'warn');
+  }
+}
+
+async function discAddAll(cid) {
+  var c = CLIENTS.find(function(x) { return x.id === cid; });
+  var results = (APP.disc[cid] && APP.disc[cid].results) || [];
+  if (!c || !results.length) return;
+
+  // 1. Add all to local state immediately
+  var added = 0;
+  results.forEach(function(a) {
+    if (!c.competitors.find(function(x) { return x.username === a.username; })) {
+      c.competitors.push(Object.assign({}, a, { status: 'approved' }));
+      added++;
+    }
+  });
+
+  // 2. Clear results and render immediately
+  APP.disc[cid].results = [];
+  render();
+  showToast(added + ' competitors added');
+
+  // 3. Save to Supabase in background
+  try {
+    var payload = {
+      id: c.id, name: c.name, email: c.email || '',
+      ig_handle: c.ig_handle || '', niche: c.niche || '',
+      target: c.target || '', pillars: c.pillars || [],
+      hashtags: c.hashtags || [], keywords: c.keywords || [],
+      platforms: c.platforms || [], posting_freq: c.posting_freq || '',
+      package: c.package || '', notes: c.notes || '',
+      color: c.color || '', light: c.light || '',
+      competitors: c.competitors, reports: c.reports || [],
+      owner_id: USER.id
+    };
+    var res = await SB.from('clients').upsert(payload, { onConflict: 'id' });
+    if (res.error) { showToast('Saved locally — Supabase sync failed: ' + res.error.message, 'warn'); }
+  } catch (err) {
+    showToast('Saved locally — sync error: ' + err.message, 'warn');
+  }
+}
+
+// ── SORTFEED ANALYSIS ─────────────────────────────────────────────────────────
+function renderAnalyse(c) {
+  var as = APP.anal[c.id] || {};
+  var result = as.result;
+  var running = !!as.running;
+  var fileName = as.fileName;
+  var keys = getKeys();
+  var hasKey = !!keys.anthropic;
+
+  var hookRows = result ? (result.hook_bank || []).map(function(h, i) {
+    return '<div class="fc" style="gap:10px;padding:8px 0;border-bottom:' + (i < result.hook_bank.length - 1 ? '1px solid var(--sur2)' : 'none') + '">'
+      + '<span class="xs mu mono" style="width:16px;flex-shrink:0">' + String(i + 1).padStart(2, '0') + '</span>'
+      + '<p style="font-size:13px;font-weight:500;margin:0">"' + h + '"</p>'
+      + '</div>';
+  }).join('') : '';
+
+  var actionRows = result ? (result.do_this_week || []).map(function(a, i) {
+    return '<div class="fc" style="gap:10px;margin-bottom:12px;align-items:flex-start">'
+      + '<div style="width:21px;height:21px;border-radius:50%;background:var(--tx);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + (i + 1) + '</div>'
+      + '<p style="font-size:13px;line-height:1.5;margin:0">' + a + '</p>'
+      + '</div>';
+  }).join('') : '';
+
+  return '<div class="card">'
+    + '<h2 style="margin-bottom:4px">SortFeed analysis — ' + c.name + '</h2>'
+    + '<p class="sm-t mu" style="margin-bottom:14px;line-height:1.6">Run your approved competitors through the SortFeed Chrome extension, export the CSV, and drop it here. Claude analyses every viral video and builds your intelligence brief.</p>'
+    + '<div class="al ai" style="font-size:11px"><strong>SortFeed workflow:</strong> Open SortFeed in Chrome → paste each competitor username → export CSV → drop the file here.</div>'
+    + (!hasKey
+      ? '<div class="al aw">No Anthropic API key set — add it in Settings for real Claude analysis. <button class="btn bs sm" style="margin-left:8px" onclick="set({screen:\'settings\'})">Settings →</button></div>'
+      : '<div class="al as">Anthropic API key connected — real Claude analysis enabled</div>')
+    + '<div class="dz" id="sf-dz" ondragover="event.preventDefault();this.classList.add(\'ov\')" ondragleave="this.classList.remove(\'ov\')" ondrop="sfDrop(event,\'' + c.id + '\')">'
+    + (fileName
+      ? '<p style="font-size:14px;font-weight:500;margin-bottom:6px">' + fileName + '</p>'
+        + '<button class="btn bg sm" onclick="APP.anal[\'' + c.id + '\'].fileName=null;APP.anal[\'' + c.id + '\'].content=null;render()">Remove</button>'
+      : '<p class="sm-t mu" style="margin-bottom:8px">Drop your SortFeed CSV here</p>'
+        + '<label class="btn bs sm" style="cursor:pointer">Browse files<input type="file" accept=".csv" style="display:none" onchange="sfFileInput(event,\'' + c.id + '\')"></label>')
+    + '</div>'
+    + '<button class="btn bp" style="margin-top:12px" onclick="runAnalyse(\'' + c.id + '\')" ' + (!fileName || running ? 'disabled' : '') + '>'
+    + (running ? '<span class="sp"></span>Analysing with Claude...' : 'Analyse + build brief')
+    + '</button>'
+    + '</div>'
+    + (result
+      ? '<div style="background:#0f1117;border-radius:14px;padding:18px 22px;margin-bottom:12px">'
+        + '<div class="xs" style="font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Headline insight</div>'
+        + '<p style="font-size:15px;color:#f9fafb;font-style:italic;line-height:1.6;margin:0">"' + result.headline_insight + '"</p>'
+        + '</div>'
+        + '<div class="card"><div class="sh" style="margin-bottom:12px">Do this week</div>' + actionRows + '</div>'
+        + '<div class="card"><div class="sh" style="margin-bottom:12px">Hook bank — ' + (result.hook_bank || []).length + ' ready to use for ' + c.name + '</div>' + hookRows + '</div>'
+        + '<div class="al as">Analysis complete</div>'
+      : '');
+}
+
+function sfDrop(e, cid) {
+  e.preventDefault();
+  var dz = document.getElementById('sf-dz'); if (dz) dz.classList.remove('ov');
+  var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) sfLoad(f, cid);
+}
+function sfFileInput(e, cid) {
+  var f = e.target && e.target.files && e.target.files[0];
+  if (f) sfLoad(f, cid);
+}
+function sfLoad(file, cid) {
+  if (!APP.anal[cid]) APP.anal[cid] = {};
+  APP.anal[cid].fileName = file.name;
+  var reader = new FileReader();
+  reader.onload = function(ev) { APP.anal[cid].content = ev.target.result; render(); };
+  reader.readAsText(file);
+}
+
+async function runAnalyse(cid) {
+  var keys = getKeys();
+  if (!keys.anthropic) { showToast('Add your Anthropic API key in Settings first', 'warn'); return; }
+  if (!APP.anal[cid]) APP.anal[cid] = {};
+  APP.anal[cid].running = true;
+  APP.anal[cid].result = null;
+  render();
+  var c = CLIENTS.find(function(x) { return x.id === cid; });
+  try {
+    var content = APP.anal[cid].content || '';
+    var prompt = 'You are the lead content strategist at Hypnotiic Media (350M+ views across clients).\n'
+      + 'Analyse this SortFeed viral content CSV for client "' + c.name + '".\n'
+      + 'Client niche: ' + c.niche + '\n'
+      + 'Content pillars: ' + (c.pillars || []).join(', ') + '\n\n'
+      + 'CSV data:\n' + content.slice(0, 4000) + '\n\n'
+      + 'Return ONLY a valid JSON object — no markdown, no code fences, no extra text:\n'
+      + '{"headline_insight":"max 25 words","do_this_week":["action 1","action 2","action 3"],'
+      + '"hook_bank":["hook 1","hook 2","hook 3","hook 4","hook 5","hook 6","hook 7","hook 8","hook 9","hook 10"]}\n\n'
+      + 'hook_bank must have exactly 10 hooks ready to use for ' + c.name + '. do_this_week exactly 3 items.';
+
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': keys.anthropic, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 2000, messages: [{ role: 'user', content: prompt }] })
+    });
+    var data = await res.json();
+    var text = (data && data.content && data.content[0] && data.content[0].text) || '';
+    text = text.trim();
+    if (text.startsWith('```')) { var parts = text.split('```'); text = parts[1] || parts[0]; if (text.startsWith('json')) text = text.slice(4); }
+    text = text.trim();
+    APP.anal[cid].running = false;
+    APP.anal[cid].result = JSON.parse(text);
+    render();
+    showToast('Analysis complete');
+  } catch (err) {
+    APP.anal[cid].running = false;
+    render();
+    showToast('Analysis error: ' + err.message, 'err');
+  }
+}
+
+// ── MONTHLY REPORT ────────────────────────────────────────────────────────────
+function igMetricCard(label, value, sub, color) {
+  return '<div class="igmc">'
+    + '<div class="igml">' + label + '</div>'
+    + '<div class="igmv" style="color:' + (color || 'var(--tx)') + '">' + value + '</div>'
+    + (sub ? '<div class="igms">' + sub + '</div>' : '')
+    + '</div>';
+}
+
+function igBarRow(label, val, pct, color) {
+  return '<div class="igbr">'
+    + '<div class="igbl">' + label + '</div>'
+    + '<div class="igbt"><div class="igbf" style="width:' + pct + '%;background:' + color + '"></div></div>'
+    + '<div class="igbv">' + val + '</div>'
+    + '</div>';
+}
+
+function renderReport(c) {
+  var rs = APP.rep[c.id] || {};
+  var data = rs.data;
+  var running = !!rs.running;
+  var keys = getKeys();
+  var hasApify = !!keys.apify;
+  var hasIg = !!c.ig_handle;
+
+  var dash = '';
+  if (data) {
+    var bars = igBarRow('Avg views / reel', fmtK(data.avg_views_reel || 0), Math.min(100, (data.avg_views_reel || 0) / 10000 * 100).toFixed(1), '#833ab4')
+      + igBarRow('Avg likes / post', fmtK(data.avg_likes || 0), Math.min(100, (data.avg_likes || 0) / 2000 * 100).toFixed(1), '#fd1d1d')
+      + igBarRow('Avg comments', fmtK(data.avg_comments || 0), Math.min(100, (data.avg_comments || 0) / 200 * 100).toFixed(1), '#2563EB')
+      + igBarRow('Engagement rate', (data.engagement_rate || 0) + '%', Math.min(100, (data.engagement_rate || 0) / 5 * 100).toFixed(1), '#18A06E');
+
+    var insightRows = (data.insights || []).map(function(ins) {
+      return '<div style="padding:8px 0;border-bottom:1px solid var(--sur2);font-size:13px;line-height:1.5">• ' + ins + '</div>';
+    }).join('');
+
+    var postThumbs = '';
+    if (data.top_posts && data.top_posts.length) {
+      postThumbs = data.top_posts.map(function(p) {
+        var badge = p.type === 'Reel' ? 'bpu' : p.type === 'Carousel' ? 'bbl' : 'bgy';
+        var metric = p.type === 'Reel' ? 'views' : 'likes';
+        var num = fmtK(p.views || p.likes || 0);
+        return '<a href="https://www.instagram.com/' + c.ig_handle + '/" target="_blank" class="pth">'
+          + '<span class="ptb bdg ' + badge + '">' + p.type + '</span>'
+          + '<div style="font-size:18px;font-weight:700">' + num + '</div>'
+          + '<div class="xs mu">' + metric + '</div>'
+          + '</a>';
+      }).join('');
+    }
+
+    dash = '<div style="background:var(--sur);border-radius:var(--rl);border:1px solid var(--bor);overflow:hidden;margin-bottom:12px">'
+      + '<div style="background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);padding:20px 22px">'
+      + '<div class="fc" style="gap:10px;margin-bottom:8px">'
+      + '<div style="width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px">' + c.name.charAt(0) + '</div>'
+      + '<div><div style="color:#fff;font-weight:600;font-size:14px">@' + c.ig_handle + '</div>'
+      + '<div style="color:rgba(255,255,255,.75);font-size:11px">' + data.month + ' — Monthly Performance Report</div></div>'
+      + '</div>'
+      + '<div style="color:rgba(255,255,255,.9);font-size:12px">Prepared by Hypnotiic Media</div>'
+      + '</div>'
+      + '<div style="padding:20px 22px">'
+      + '<div class="sh" style="margin-bottom:12px">Content overview</div>'
+      + '<div class="g4" style="margin-bottom:16px">'
+      + igMetricCard('Posts published', data.total_posts, 'last 30 days', 'var(--tx)')
+      + igMetricCard('Total views', fmtK(data.total_views), 'across all reels', 'var(--pu)')
+      + igMetricCard('Total likes', fmtK(data.total_likes), 'all posts', 'var(--pk)')
+      + igMetricCard('Total comments', fmtK(data.total_comments), 'all posts', 'var(--bl)')
+      + '</div>'
+      + '<div class="sh" style="margin-bottom:12px">Engagement breakdown</div>'
+      + '<div class="card" style="margin-bottom:16px;padding:16px 18px">' + bars + '</div>'
+      + '<div class="al aw" style="font-size:11px"><strong>Note:</strong> Saves and shares require Instagram Business API access which is separate. Contact us to set this up.</div>'
+      + '<div class="sh" style="margin-bottom:12px">Insights this month</div>'
+      + '<div class="card" style="padding:16px 18px;margin-bottom:0">' + insightRows + '</div>'
+      + '</div>'
+      + '</div>'
+      + (postThumbs ? '<div class="card"><div class="sh" style="margin-bottom:12px">Top posts this month (by views)</div><div class="pgrid">' + postThumbs + '</div></div>' : '')
+      + '<div class="card" style="margin-bottom:0"><div class="sh" style="margin-bottom:8px">Team notes</div>'
+      + '<p class="sm-t" style="line-height:1.7">' + (data.notes || '—') + '</p><hr>'
+      + '<div class="fc" style="gap:8px">'
+      + '<button class="btn bp" onclick="openModal(\'send-report\')">Send to ' + c.name + '</button>'
+      + '<button class="btn bs" onclick="window.print()">Print / Save as PDF</button>'
+      + '</div></div>';
+  }
+
+  return '<div class="card">'
+    + '<h2 style="margin-bottom:4px">Monthly performance report — ' + c.name + '</h2>'
+    + '<p class="sm-t mu" style="margin-bottom:14px;line-height:1.6">Pulls ' + c.name + '\'s real Instagram post data for the last 30 days using Apify and builds a client-ready performance dashboard.</p>'
+    + (!hasIg ? '<div class="al aw">No Instagram handle set for ' + c.name + '. <button class="btn bs sm" style="margin-left:8px" onclick="openModal(\'edit\')">Edit client →</button></div>' : '')
+    + (!hasApify ? '<div class="al aw">No Apify API key set. <button class="btn bs sm" style="margin-left:8px" onclick="set({screen:\'settings\'})">Settings →</button></div>' : '')
+    + (hasApify && hasIg ? '<div class="al as">Will pull real data for @' + c.ig_handle + ' from the last 30 days</div>' : '')
+    + '<div class="fld"><label class="lbl">Month</label>'
+    + '<input class="inp" id="rep-month" value="' + esc(rs.month || new Date().toLocaleString('default', { month: 'long', year: 'numeric' })) + '" style="max-width:220px"></div>'
+    + '<div class="fld"><label class="lbl">Team notes for this month</label>'
+    + '<textarea class="inp" id="rep-notes" rows="3" placeholder="e.g. Launched 2 skit videos, client hit 50k followers...">' + esc(rs.notes || '') + '</textarea></div>'
+    + '<div class="fc" style="gap:8px">'
+    + '<button class="btn bp" onclick="runReport(\'' + c.id + '\')" ' + (running || !hasIg || !hasApify ? 'disabled' : '') + '>'
+    + (running ? '<span class="sp"></span>Pulling Instagram data...' : 'Pull data + build report')
+    + '</button>'
+    + (data ? '<button class="btn bs" onclick="openModal(\'send-report\')">Send to ' + c.name + ' →</button>' : '')
+    + '</div>'
+    + '</div>'
+    + dash;
+}
+
+async function runReport(cid) {
+  var keys = getKeys();
+  if (!keys.apify) { showToast('Add your Apify API key in Settings first', 'warn'); return; }
+  var c = CLIENTS.find(function(x) { return x.id === cid; });
+  if (!c || !c.ig_handle) { showToast('No Instagram handle set for this client', 'warn'); return; }
+
+  if (!APP.rep[cid]) APP.rep[cid] = {};
+  var month = (document.getElementById('rep-month') || {}).value || new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+  var notes = (document.getElementById('rep-notes') || {}).value || '';
+  APP.rep[cid].month = month;
+  APP.rep[cid].notes = notes;
+  APP.rep[cid].running = true;
+  APP.rep[cid].data = null;
+  render();
+
+  try {
+    var token = keys.apify;
+    // Start Apify run to scrape client's own Instagram posts
+    var startRes = await fetch('https://api.apify.com/v2/acts/apify~instagram-scraper/runs?token=' + token, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ directUrls: ['https://www.instagram.com/' + c.ig_handle + '/'], resultsType: 'posts', resultsLimit: 40, addParentData: true })
+    });
+    if (!startRes.ok) throw new Error('Apify error: ' + startRes.status);
+    var startData = await startRes.json();
+    var runId = startData && startData.data && startData.data.id;
+    if (!runId) throw new Error('No run ID returned');
+
+    var dsId = await pollRun(runId, token, null);
+    if (!dsId) throw new Error('Apify run timed out');
+
+    var itemsRes = await fetch('https://api.apify.com/v2/datasets/' + dsId + '/items?token=' + token);
+    var items = await itemsRes.json();
+    if (!Array.isArray(items) || items.length === 0) throw new Error('No posts returned from Apify');
+
+    // Filter to last 30 days
+    var ago = new Date(); ago.setDate(ago.getDate() - 30);
+    var posts30 = items.filter(function(p) {
+      try { return new Date(p.timestamp) >= ago; } catch(e) { return true; }
+    });
+    var allPosts = posts30.length > 0 ? posts30 : items.slice(0, 30);
+
+    var totalViews    = allPosts.reduce(function(s, p) { return s + (p.videoViewCount || 0); }, 0);
+    var totalLikes    = allPosts.reduce(function(s, p) { return s + (p.likesCount || 0); }, 0);
+    var totalComments = allPosts.reduce(function(s, p) { return s + (p.commentsCount || 0); }, 0);
+    var followers     = (allPosts[0] && allPosts[0].ownerFollowersCount) || 1;
+    var avgViews    = allPosts.length ? Math.round(totalViews / allPosts.length) : 0;
+    var avgLikes    = allPosts.length ? Math.round(totalLikes / allPosts.length) : 0;
+    var avgComments = allPosts.length ? Math.round(totalComments / allPosts.length) : 0;
+    var engRate = ((avgLikes + avgComments) / followers * 100).toFixed(2);
+
+    var topPosts = allPosts.map(function(p) {
+      return {
+        type: (p.type === 'Video' || p.type === 'Reel') ? 'Reel' : p.type === 'Sidecar' ? 'Carousel' : 'Image',
+        views: p.videoViewCount || 0,
+        likes: p.likesCount || 0
+      };
+    }).sort(function(a, b) { return (b.views || b.likes) - (a.views || a.likes); }).slice(0, 6);
+
+    APP.rep[cid].running = false;
+    APP.rep[cid].data = {
+      month: month, notes: notes,
+      total_posts: allPosts.length,
+      total_views: totalViews, total_likes: totalLikes, total_comments: totalComments,
+      avg_views_reel: avgViews, avg_likes: avgLikes, avg_comments: avgComments,
+      engagement_rate: engRate,
+      top_posts: topPosts,
+      insights: [
+        'Published ' + allPosts.length + ' posts in the last 30 days — ' + (allPosts.length / 4).toFixed(1) + ' per week on average',
+        'Reels averaged ' + fmtK(avgViews) + ' views per post',
+        'Engagement rate of ' + engRate + '% — ' + (Number(engRate) >= 2 ? 'above' : 'building toward') + ' the 2% industry benchmark',
+        'Total of ' + fmtK(totalComments) + ' comments this month — ' + (Number(engRate) >= 1 ? 'audience is engaging not just watching' : 'focus on hooks that invite responses'),
+        'Best performing post achieved ' + fmtK(topPosts[0] ? (topPosts[0].views || topPosts[0].likes) : 0) + ' ' + (topPosts[0] && topPosts[0].type === 'Reel' ? 'views' : 'likes')
+      ]
+    };
+    render();
+    showToast('Report built from real Instagram data');
+  } catch (err) {
+    APP.rep[cid].running = false;
+    render();
+    showToast('Report error: ' + err.message, 'err');
+  }
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────────
+function renderSettings() {
+  var keys = getKeys();
+  return '<div class="fu">' + renderNav('Settings')
+    + '<div class="wrap" style="max-width:580px">'
+    + '<div class="fc" style="gap:8px;margin-bottom:20px"><button class="btn bg sm" onclick="set({screen:\'dash\'})">← Dashboard</button><h2>Settings</h2></div>'
+    + '<div class="card">'
+    + '<h2 style="margin-bottom:4px">API keys</h2>'
+    + '<p class="sm-t mu" style="margin-bottom:16px;line-height:1.6">Keys are stored in this browser only — they go directly from your browser to each service. Nobody else can see them.</p>'
+
+    + '<div class="fld"><label class="lbl">Apify API token <span class="bdg bgr" style="vertical-align:middle">Required</span></label>'
+    + '<div class="fc" style="gap:8px"><input class="inp" id="apify-k" type="password" value="' + esc(keys.apify || '') + '" placeholder="apify_api_..." style="flex:1">'
+    + (keys.apify ? '<span class="bdg bgr">Connected</span>' : '<span class="bdg bgy">Not set</span>')
+    + '</div>'
+    + '<div class="xs mu" style="margin-top:5px">Get at <a href="https://apify.com" target="_blank" style="color:var(--pu)">apify.com</a> → Settings → Integrations → API tokens. Used for competitor discovery and monthly reports.</div></div>'
+
+    + '<div class="fld"><label class="lbl">SerpApi key <span class="bdg bbl" style="vertical-align:middle">Recommended</span></label>'
+    + '<div class="fc" style="gap:8px"><input class="inp" id="serp-k" type="password" value="' + esc(keys.serpapi || '') + '" placeholder="serpapi key..." style="flex:1">'
+    + (keys.serpapi ? '<span class="bdg bgr">Connected</span>' : '<span class="bdg bgy">Not set</span>')
+    + '</div>'
+    + '<div class="xs mu" style="margin-top:5px">Get at <a href="https://serpapi.com" target="_blank" style="color:var(--pu)">serpapi.com</a> → Free tier: 100 searches/month. Adds Google search to competitor discovery — finds accounts that hashtags miss.</div></div>'
+
+    + '<div class="fld"><label class="lbl">Anthropic API key</label>'
+    + '<div class="fc" style="gap:8px"><input class="inp" id="anth-k" type="password" value="' + esc(keys.anthropic || '') + '" placeholder="sk-ant-..." style="flex:1">'
+    + (keys.anthropic ? '<span class="bdg bgr">Connected</span>' : '<span class="bdg bgy">Not set</span>')
+    + '</div>'
+    + '<div class="xs mu" style="margin-top:5px">Get at <a href="https://console.anthropic.com" target="_blank" style="color:var(--pu)">console.anthropic.com</a> → API Keys. Used for SortFeed analysis.</div></div>'
+
+    + '<div class="fld" style="opacity:.5;pointer-events:none"><label class="lbl">PhantomBuster API key <span class="bdg bgy" style="vertical-align:middle">Coming soon</span></label>'
+    + '<div class="fc" style="gap:8px"><input class="inp" type="password" placeholder="phantom_key..." style="flex:1;background:var(--sur2)" disabled>'
+    + '<span class="bdg bgy">Coming soon</span>'
+    + '</div>'
+    + '<div class="xs mu" style="margin-top:5px">Will enable follower/following list scraping and automated DM sequences — future feature.</div></div>'
+
+    + '<button class="btn bp" onclick="saveKeys()">Save API keys</button>'
+    + '</div>'
+    + '<div class="card">'
+    + '<h2 style="margin-bottom:4px">Team access</h2>'
+    + '<p class="sm-t mu" style="margin-bottom:12px;line-height:1.6">To add Kathya or a team member, go to your Supabase dashboard → Authentication → Users → Invite user. They can then log in from any device.</p>'
+    + '<a href="https://supabase.com/dashboard/project/dvknzfhsgnywevhmsgns/auth/users" target="_blank" class="btn bs sm">Manage users in Supabase →</a>'
+    + '</div>'
+    + '<div class="card"><h2 style="margin-bottom:4px">Your account</h2>'
+    + '<p class="sm-t mu" style="margin-bottom:12px">Signed in as <strong>' + (USER ? USER.email : '—') + '</strong></p>'
+    + '<button class="btn bd sm" onclick="doLogout()">Sign out</button>'
+    + '</div>'
+    + '</div></div>';
+}
+
+function saveKeys() {
+  storeKeys({
+    apify:     ((document.getElementById('apify-k') || {}).value || '').trim(),
+    serpapi:   ((document.getElementById('serp-k')  || {}).value || '').trim(),
+    anthropic: ((document.getElementById('anth-k')  || {}).value || '').trim()
+  });
+  render();
+  showToast('API keys saved');
+}
+
+// ── MODALS ────────────────────────────────────────────────────────────────────
+function openModal(type) {
+  APP.modal = type;
+  APP.md = {};
+  if (type === 'edit') {
+    var c = cc();
+    if (c) APP.md = {
+      id: c.id, name: c.name, email: c.email || '', ig_handle: c.ig_handle || '',
+      niche: c.niche || '', target: c.target || '',
+      pillars: (c.pillars || []).slice(), hashtags: (c.hashtags || []).slice(),
+      keywords: (c.keywords || []).slice(), platforms: (c.platforms || []).slice(),
+      posting_freq: c.posting_freq || '4x per week', package: c.package || 'Starter',
+      notes: c.notes || '', color: c.color || COLORS[0].color, light: c.light || COLORS[0].light
+    };
+  }
+  render();
+}
+function closeModal() { APP.modal = null; APP.md = {}; render(); }
+
+function buildModal() {
+  if (APP.modal === 'edit')        return editModal();
+  if (APP.modal === 'add-comp')    return addCompModal();
+  if (APP.modal === 'send-report') return sendReportModal();
+  return '';
+}
+
+function editModal() {
+  var d = APP.md;
+  var ph = pillsHtml(d.pillars, 'editRmPillar');
+  var hh = tagsHtml(d.hashtags, 'editRmHash', true);
+  var kh = tagsHtml(d.keywords,  'editRmKw',   false);
+  var cp = COLORS.map(function(c, i) {
+    var border = d.color === c.color ? '3px solid var(--tx)' : '2px solid transparent';
+    return '<button type="button" onclick="editSetColor(' + i + ')" title="' + c.name + '" style="width:24px;height:24px;border-radius:50%;background:' + c.color + ';border:' + border + ';cursor:pointer;transition:border .15s"></button>';
+  }).join('');
+  var fOpts = FREQS.map(function(f) { return '<option' + (d.posting_freq === f ? ' selected' : '') + '>' + f + '</option>'; }).join('');
+  var pOpts = PKGS.map(function(p)  { return '<option' + (d.package === p ? ' selected' : '') + '>' + p + '</option>'; }).join('');
+  var platHtml = PLATS.map(function(pl) {
+    var chk = (d.platforms || []).indexOf(pl) >= 0 ? ' checked' : '';
+    return '<label class="fc" style="gap:7px;cursor:pointer;font-size:13px"><input type="checkbox"' + chk + ' onchange="editTogglePlat(\'' + pl + '\')" style="width:15px;height:15px;cursor:pointer"> ' + pl + '</label>';
+  }).join('');
+
+  return '<div class="modal">'
+    + '<div class="mh"><h3>Edit — ' + d.name + '</h3><button class="btn bg ic" onclick="closeModal()">×</button></div>'
+    + '<div class="mb">'
+    + '<div class="g2"><div class="fld"><label class="lbl">Name</label><input class="inp" id="ec-n" value="' + esc(d.name) + '"></div>'
+    + '<div class="fld"><label class="lbl">Email</label><input class="inp" id="ec-e" value="' + esc(d.email) + '"></div></div>'
+    + '<div class="fld"><label class="lbl">Instagram handle (no @)</label><input class="inp" id="ec-ig" value="' + esc(d.ig_handle) + '" placeholder="username"></div>'
+    + '<div class="fld"><label class="lbl">Niche</label><input class="inp" id="ec-ni" value="' + esc(d.niche) + '"></div>'
+    + '<div class="fld"><label class="lbl">Target audience</label><textarea class="inp" id="ec-ta" rows="2">' + esc(d.target) + '</textarea></div>'
+    + '<div class="g2"><div class="fld"><label class="lbl">Posting freq</label><select class="inp" id="ec-fr">' + fOpts + '</select></div>'
+    + '<div class="fld"><label class="lbl">Package</label><select class="inp" id="ec-pk">' + pOpts + '</select></div></div>'
+    + '<div class="fld"><label class="lbl">Content pillars</label>'
+    + '<div style="min-height:28px;margin-bottom:7px">' + (ph || '<span class="xs mu">None</span>') + '</div>'
+    + '<div class="fc" style="gap:8px"><input class="inp" id="ec-pi" placeholder="Add pillar" style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();editAddPillar()}">'
+    + '<button class="btn bs sm" onclick="editAddPillar()">Add</button></div></div>'
+    + '<div class="fld"><label class="lbl">Hashtags</label>'
+    + '<div style="min-height:28px;margin-bottom:7px">' + (hh || '<span class="xs mu">None</span>') + '</div>'
+    + '<div class="fc" style="gap:8px"><input class="inp" id="ec-ha" placeholder="businesscoach..." style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();editAddHash()}">'
+    + '<button class="btn bs sm" onclick="editAddHash()">Add</button></div></div>'
+    + '<div class="fld"><label class="lbl">Keywords</label>'
+    + '<div style="min-height:28px;margin-bottom:7px">' + (kh || '<span class="xs mu">None</span>') + '</div>'
+    + '<div class="fc" style="gap:8px"><input class="inp" id="ec-kw" placeholder="business coach..." style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();editAddKw()}">'
+    + '<button class="btn bs sm" onclick="editAddKw()">Add</button></div></div>'
+    + '<div class="fld"><label class="lbl">Platforms</label><div class="fc" style="gap:14px;flex-wrap:wrap">' + platHtml + '</div></div>'
+    + '<div class="fld"><label class="lbl">Colour</label><div class="fc" style="gap:8px">' + cp + '</div></div>'
+    + '<div class="fld"><label class="lbl">Notes</label><textarea class="inp" id="ec-no" rows="2">' + esc(d.notes) + '</textarea></div>'
+    + '</div>'
+    + '<div class="mf"><button class="btn bg" onclick="closeModal()">Cancel</button><button class="btn bp" id="ec-save" onclick="saveEdit()">Save changes</button></div>'
+    + '</div>';
+}
+
+function editAddPillar() { var i = document.getElementById('ec-pi'); if (!i) return; var v = i.value.trim(); if (!v) return; if (APP.md.pillars.indexOf(v) < 0) APP.md.pillars.push(v); i.value = ''; render(); setTimeout(function() { var x = document.getElementById('ec-pi'); if (x) x.focus(); }, 30); }
+function editRmPillar(v) { APP.md.pillars = APP.md.pillars.filter(function(x) { return x !== v; }); render(); }
+function editAddHash() { var i = document.getElementById('ec-ha'); if (!i) return; var v = i.value.trim().replace('#','').replace(/\s/g,''); if (!v) return; if (APP.md.hashtags.indexOf(v) < 0) APP.md.hashtags.push(v); i.value = ''; render(); setTimeout(function() { var x = document.getElementById('ec-ha'); if (x) x.focus(); }, 30); }
+function editRmHash(v) { APP.md.hashtags = APP.md.hashtags.filter(function(x) { return x !== v; }); render(); }
+function editAddKw() { var i = document.getElementById('ec-kw'); if (!i) return; var v = i.value.trim(); if (!v) return; if (APP.md.keywords.indexOf(v) < 0) APP.md.keywords.push(v); i.value = ''; render(); setTimeout(function() { var x = document.getElementById('ec-kw'); if (x) x.focus(); }, 30); }
+function editRmKw(v) { APP.md.keywords = APP.md.keywords.filter(function(x) { return x !== v; }); render(); }
+function editTogglePlat(pl) { var ps = APP.md.platforms; var i = ps.indexOf(pl); if (i >= 0) ps.splice(i, 1); else ps.push(pl); }
+function editSetColor(i) { APP.md.color = COLORS[i].color; APP.md.light = COLORS[i].light; render(); }
+
+async function saveEdit() {
+  var d = APP.md;
+  var btn = document.getElementById('ec-save');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="sp"></span>Saving...'; }
+  var c = CLIENTS.find(function(x) { return x.id === d.id; });
+  if (!c) { closeModal(); return; }
+  var updates = {
+    name:         (document.getElementById('ec-n')  || {}).value || d.name,
+    email:        (document.getElementById('ec-e')  || {}).value || '',
+    ig_handle:    ((document.getElementById('ec-ig') || {}).value || '').replace('@', ''),
+    niche:        (document.getElementById('ec-ni') || {}).value || '',
+    target:       (document.getElementById('ec-ta') || {}).value || '',
+    posting_freq: (document.getElementById('ec-fr') || {}).value || d.posting_freq,
+    package:      (document.getElementById('ec-pk') || {}).value || d.package,
+    notes:        (document.getElementById('ec-no') || {}).value || '',
+    pillars:   d.pillars.slice(), hashtags: d.hashtags.slice(),
+    keywords:  d.keywords.slice(), platforms: d.platforms.slice(),
+    color:  d.color || c.color,  light: d.light || c.light
+  };
+  Object.assign(c, updates);
+  try { await upsertClient(c); closeModal(); showToast('Client updated'); }
+  catch (err) { showToast('Error: ' + err.message, 'err'); if (btn) { btn.disabled = false; btn.innerHTML = 'Save changes'; } }
+}
+
+function addCompModal() {
+  return '<div class="modal" style="max-width:400px">'
+    + '<div class="mh"><h3>Add competitor manually</h3><button class="btn bg ic" onclick="closeModal()">×</button></div>'
+    + '<div class="mb">'
+    + '<div class="fld"><label class="lbl">Instagram username (no @)</label><input class="inp" id="mc-u" placeholder="alexhormozi"></div>'
+    + '<div class="g2"><div class="fld"><label class="lbl">Followers</label><input class="inp" id="mc-f" type="number" placeholder="150000"></div>'
+    + '<div class="fld"><label class="lbl">Score /100</label><input class="inp" id="mc-s" type="number" placeholder="75" min="0" max="100"></div></div>'
+    + '</div>'
+    + '<div class="mf"><button class="btn bg" onclick="closeModal()">Cancel</button><button class="btn bp" onclick="saveManualComp()">Add competitor</button></div>'
+    + '</div>';
+}
+
+async function saveManualComp() {
+  var u = ((document.getElementById('mc-u') || {}).value || '').trim().replace('@', '');
+  if (!u) { showToast('Username is required', 'warn'); return; }
+  var c = cc(); if (!c) { closeModal(); return; }
+  if (c.competitors.find(function(x) { return x.username === u; })) { showToast('Already in list', 'warn'); return; }
+  c.competitors.push({
+    username: u, status: 'approved',
+    followers: parseInt((document.getElementById('mc-f') || {}).value || '0') || 0,
+    score:     parseInt((document.getElementById('mc-s') || {}).value || '0') || 0,
+    viral_posts: 0, best_views: 0
+  });
+  try { await upsertClient(c); closeModal(); showToast('@' + u + ' added'); }
+  catch (err) { showToast('Error: ' + err.message, 'err'); }
+}
+
+function sendReportModal() {
+  var c = cc() || {};
+  var rs = APP.rep[c.id] || {};
+  var month = (rs.data && rs.data.month) || new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+  return '<div class="modal" style="max-width:440px">'
+    + '<div class="mh"><h3>Send report to ' + c.name + '</h3><button class="btn bg ic" onclick="closeModal()">×</button></div>'
+    + '<div class="mb">'
+    + '<p class="sm-t mu" style="margin-bottom:16px;line-height:1.6">Copy the details below and send via Gmail or your email client. Print the dashboard as PDF from the Monthly Report tab to attach.</p>'
+    + '<div class="fld"><label class="lbl">To</label><input class="inp" id="sr-em" value="' + esc(c.email || '') + '" placeholder="client@example.com"></div>'
+    + '<div class="fld"><label class="lbl">Subject</label><input class="inp" id="sr-sub" value="Your Monthly Content Report — ' + month + '"></div>'
+    + '</div>'
+    + '<div class="mf"><button class="btn bg" onclick="closeModal()">Close</button><button class="btn bp" onclick="copyReportEmail()">Copy email details</button></div>'
+    + '</div>';
+}
+
+function copyReportEmail() {
+  var c = cc() || {};
+  var email = (document.getElementById('sr-em') || {}).value || '';
+  var sub   = (document.getElementById('sr-sub') || {}).value || '';
+  var text  = 'To: ' + email + '\nSubject: ' + sub + '\n\nHi ' + c.name + ',\n\nPlease find your monthly content performance report attached.\n\nBest,\nHypnotiic Media';
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(function() { showToast('Email details copied to clipboard'); });
+  closeModal();
+}
+
+// ── SHARED HELPERS ────────────────────────────────────────────────────────────
+function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function pillsHtml(arr, rmFn) {
+  return (arr || []).map(function(p) {
+    return '<span class="pill">' + esc(p) + '<button class="px" onclick="' + rmFn + '(\'' + esc(p) + '\')">×</button></span>';
+  }).join('');
+}
+
+function tagsHtml(arr, rmFn, isHash) {
+  return (arr || []).map(function(t) {
+    var display = isHash ? '#' + t : t;
+    return '<span class="pill">' + esc(display) + '<button class="px" onclick="' + rmFn + '(\'' + esc(t) + '\')">×</button></span>';
+  }).join('');
+}
+
+// ── BIND ──────────────────────────────────────────────────────────────────────
+function bindEvents() {
+  var lPass = document.getElementById('l-pw');
+  if (lPass) {
+    lPass.addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
+  }
+  var lEmail = document.getElementById('l-em');
+  if (lEmail) {
+    lEmail.addEventListener('keydown', function(e) { if (e.key === 'Enter') { var pw = document.getElementById('l-pw'); if (pw) pw.focus(); } });
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function init() {
+  render(); // show loading screen immediately
+
+  // Check for existing session
+  var sessionRes = await SB.auth.getSession();
+  var session = sessionRes && sessionRes.data && sessionRes.data.session;
+
+  if (session && session.user) {
+    USER = session.user;
+    await loadClients();
+    set({ screen: 'dash' });
+  } else {
+    set({ screen: 'login' });
+  }
+
+  // Keep session in sync
+  SB.auth.onAuthStateChange(async function(event, session) {
+    if (event === 'SIGNED_IN' && session && session.user) {
+      USER = session.user;
+      await loadClients();
+      set({ screen: 'dash' });
+    } else if (event === 'SIGNED_OUT') {
+      USER = null; CLIENTS = [];
+      set({ screen: 'login' });
+    }
+  });
+}
+
+init();
+</script>
+</body>
+</html>
