@@ -812,79 +812,178 @@ function renderDiscover(c) {
   var running = !!ds.running;
   var keys = getKeys();
   var hasApify = !!keys.apify;
-  var hasSerpApi = !!keys.serpapi;
-  var hasTerms = (c.hashtags || []).length > 0 || (c.keywords || []).length > 0;
+  var hasAnthro = !!keys.anthropic;
+  var genKws = ds.generatedKeywords || [];
+  var manualKws = ds.manualKeywords || [];
+  var seedUsers = ds.seedUsers || [];
+  var allKws = genKws.concat(manualKws).filter(function(k,i,a){ return a.indexOf(k)===i; });
 
-  var sourceCount = (hasApify ? 2 : 0) + (hasSerpApi ? 1 : 0);
+  // Keyword pills
+  var kwPills = allKws.map(function(k) {
+    var isGen = genKws.indexOf(k) >= 0;
+    return '<span class="pill" style="' + (isGen ? 'border-color:var(--pu);color:var(--pu)' : '') + '">'
+      + k + '<button class="px" onclick="discRmKw(\'' + c.id + '\',\'' + k + '\')">×</button></span>';
+  }).join('');
+
+  var seedPills = seedUsers.map(function(u) {
+    return '<span class="pill">@' + u + '<button class="px" onclick="discRmSeed(\'' + c.id + '\',\'' + u + '\')">×</button></span>';
+  }).join('');
 
   var rows = results.map(function(a, i) {
     var sc = a.score >= 80 ? 'var(--pu)' : a.score >= 60 ? 'var(--gr)' : 'var(--am)';
-    var srcBadge = a.source === 'google' ? '<span class="bdg bbl" style="font-size:9px;margin-left:4px">Google</span>'
-      : a.source === 'profile' ? '<span class="bdg bgr" style="font-size:9px;margin-left:4px">Profile</span>'
-      : '<span class="bdg bgy" style="font-size:9px;margin-left:4px">Hashtag</span>';
     var sweetSpot = a.followers >= 50000 && a.followers <= 500000;
-    return '<div style="display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:' + (i < results.length - 1 ? '1px solid var(--sur2)' : 'none') + '">'
-      + '<span style="font-size:13px;font-weight:700;color:var(--bor2);width:28px;flex-shrink:0">#' + (i + 1) + '</span>'
+    var srcBadge = a.source === 'similar' ? '<span class="bdg bbl" style="font-size:9px">Similar</span>'
+      : '<span class="bdg bgy" style="font-size:9px">Keyword</span>';
+    return '<div style="display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:' + (i < results.length-1 ? '1px solid var(--sur2)' : 'none') + '">'
+      + '<span style="font-size:13px;font-weight:700;color:var(--bor2);width:28px;flex-shrink:0">#' + (i+1) + '</span>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">'
+      + '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">'
       + '<a href="https://www.instagram.com/' + a.username + '/" target="_blank" style="font-weight:600;color:var(--tx);text-decoration:none;font-size:13px">@' + a.username + ' <span class="xs" style="color:var(--bl)">↗</span></a>'
       + srcBadge
       + (sweetSpot ? '<span class="bdg bgr" style="font-size:9px">Sweet spot</span>' : '')
       + '</div>'
-      + '<div class="xs mu" style="margin-top:3px">' + fmt(a.followers) + ' followers · engagement: ' + (a.engRate || '—') + '%</div>'
+      + '<div class="xs mu" style="margin-top:3px">'
+      + (a.followers ? fmt(a.followers) + ' followers' : 'followers unknown') + ' · '
+      + (a.engRate ? 'engagement: ' + a.engRate + '%' : '') + ' · '
+      + (a.postCount ? a.postCount + ' posts' : '')
+      + '</div>'
+      + (a.bio ? '<div class="xs mu" style="margin-top:2px;font-style:italic">"' + a.bio.slice(0,80) + (a.bio.length>80?'...':'') + '"</div>' : '')
       + '</div>'
       + '<div style="text-align:right;margin-right:10px;flex-shrink:0">'
       + '<div style="font-size:16px;font-weight:700;color:' + sc + '">' + a.score + '</div>'
       + '<div class="xs mu">/ 100</div>'
       + '</div>'
-      + '<button class="btn bsu sm" style="flex-shrink:0" onclick="discAdd(\'' + c.id + '\',\'' + a.username + '\',' + a.followers + ',' + a.score + ',' + (a.viral_posts || 0) + ',' + (a.best_views || 0) + ')">+ Add</button>'
+      + '<button class="btn bsu sm" style="flex-shrink:0" onclick="discAdd(\'' + c.id + '\',\'' + a.username + '\',' + (a.followers||0) + ',' + a.score + ',' + (a.viral_posts||0) + ',' + (a.best_views||0) + ')">+ Add</button>'
       + '</div>';
   }).join('');
 
-  var statusBadges = '<div class="fc" style="gap:8px;flex-wrap:wrap;margin-bottom:14px">'
-    + '<span class="bdg ' + (hasApify ? 'bgr' : 'bgy') + '">' + (hasApify ? '✓' : '✗') + ' Apify</span>'
-    + '<span class="bdg ' + (hasSerpApi ? 'bgr' : 'bgy') + '">' + (hasSerpApi ? '✓' : '✗') + ' SerpApi (Google)</span>'
-    + '<span class="bdg bgy" style="opacity:.5">PhantomBuster — coming soon</span>'
-    + '</div>';
-
-  var termsSummary = '<div class="al ai" style="font-size:12px">'
-    + '<strong>Hashtags:</strong> ' + ((c.hashtags || []).map(function(h) { return '#' + h; }).join(', ') || 'none') + '<br>'
-    + '<strong>Keywords:</strong> ' + ((c.keywords || []).join(', ') || 'none')
-    + '</div>';
-
   return '<div class="card">'
-    + '<h2 style="margin-bottom:4px">Auto-discover competitors for ' + c.name + '</h2>'
-    + '<p class="sm-t mu" style="margin-bottom:14px;line-height:1.6">'
-    + 'Runs ' + sourceCount + ' parallel search' + (sourceCount !== 1 ? 'es' : '') + ' — Apify hashtag scraper, Apify profile search'
-    + (hasSerpApi ? ', and Google search via SerpApi' : '') + '. '
-    + 'Results are scored out of 100 and ranked from closest match to least close. Minimum score 30 to appear.</p>'
-    + statusBadges
-    + (!hasApify ? '<div class="al aw">Apify API key required. <button class="btn bs sm" style="margin-left:8px" onclick="set({screen:\'settings\'})">Add in Settings →</button></div>' : '')
-    + (!hasSerpApi ? '<div class="al ai" style="font-size:11px">Add a SerpApi key in Settings to also search Google for Instagram accounts — finds competitors that hashtags miss.</div>' : '')
-    + (!hasTerms ? '<div class="al aw">No hashtags or keywords set. Click <strong>Edit client</strong> above to add some.</div>' : termsSummary)
+    + '<h2 style="margin-bottom:4px">Competitor discovery — ' + c.name + '</h2>'
+    + '<p class="sm-t mu" style="margin-bottom:16px;line-height:1.6">Claude generates smart search keywords from ' + c.name + '\'s profile, then Apify searches Instagram by username, name and bio. Results are filtered and ranked by virality and niche match.</p>'
+
+    + (!hasApify ? '<div class="al ae">Apify API key required. <button class="btn bs sm" style="margin-left:8px" onclick="set({screen:\'settings\'})">Add in Settings →</button></div>' : '')
+
+    // AI keyword generation
+    + '<div style="background:var(--sur2);border-radius:var(--r);padding:14px 16px;margin-bottom:14px">'
+    + '<div class="fb" style="margin-bottom:10px">'
+    + '<div><span style="font-size:12px;font-weight:600">Search keywords</span> <span class="xs mu">(purple = AI generated)</span></div>'
+    + '<button class="btn bs sm" onclick="discGenKeywords(\'' + c.id + '\')" ' + (!hasAnthro || running ? 'disabled' : '') + '>'
+    + (ds.generatingKws ? '<span class="spd"></span>Generating...' : '✦ Generate with AI')
+    + '</button>'
+    + '</div>'
+    + '<div style="min-height:32px;margin-bottom:10px">' + (kwPills || '<span class="xs mu">No keywords yet — click Generate with AI or add manually below</span>') + '</div>'
     + '<div class="fc" style="gap:8px">'
-    + '<button class="btn bp" onclick="runDiscover(\'' + c.id + '\')" ' + (running || !hasTerms || !hasApify ? 'disabled' : '') + '>'
+    + '<input class="inp" id="disc-kw-inp" placeholder="Add keyword manually..." style="flex:1;font-size:12px" onkeydown="if(event.key===\'Enter\'){event.preventDefault();discAddKw(\'' + c.id + '\')}">'
+    + '<button class="btn bs sm" onclick="discAddKw(\'' + c.id + '\')">Add</button>'
+    + '</div>'
+    + '</div>'
+
+    // Known competitors seed
+    + '<div style="background:var(--sur2);border-radius:var(--r);padding:14px 16px;margin-bottom:14px">'
+    + '<div style="font-size:12px;font-weight:600;margin-bottom:6px">Seed with known competitors <span class="xs mu" style="font-weight:400">(optional — finds accounts similar to these)</span></div>'
+    + '<div style="min-height:28px;margin-bottom:10px">' + (seedPills || '<span class="xs mu">Add Instagram usernames of known competitors</span>') + '</div>'
+    + '<div class="fc" style="gap:8px">'
+    + '<input class="inp" id="disc-seed-inp" placeholder="username (no @)..." style="flex:1;font-size:12px" onkeydown="if(event.key===\'Enter\'){event.preventDefault();discAddSeed(\'' + c.id + '\')}">'
+    + '<button class="btn bs sm" onclick="discAddSeed(\'' + c.id + '\')">Add</button>'
+    + '</div>'
+    + '</div>'
+
+    + '<div class="fc" style="gap:8px">'
+    + '<button class="btn bp" onclick="runDiscover(\'' + c.id + '\')" ' + (running || !hasApify || allKws.length === 0 ? 'disabled' : '') + '>'
     + (running ? '<span class="sp"></span>Searching...' : 'Run competitor discovery')
     + '</button>'
     + (results.length ? '<button class="btn bs sm" onclick="discAddAll(\'' + c.id + '\')">Add all ' + results.length + '</button>'
       + '<button class="btn bg sm" onclick="APP.disc[\'' + c.id + '\']={}; render()">Clear</button>' : '')
     + '</div>'
+    + (allKws.length === 0 && hasApify ? '<div class="xs mu" style="margin-top:8px">Generate or add keywords above to enable search</div>' : '')
     + (running ? '<div class="log" id="disc-log"></div>' : '')
     + '</div>'
-    + (results.length
-      ? '<div class="card" style="padding:0;overflow:hidden">'
-        + '<div class="fb" style="padding:14px 20px;border-bottom:1px solid var(--bor)">'
-        + '<h3>Found ' + results.length + ' competitor' + (results.length !== 1 ? 's' : '') + ' — ranked best match first</h3>'
-        + '</div>'
-        + '<div style="padding:0 20px">' + rows + '</div>'
-        + '</div>'
-      : '');
+
+    + (results.length ? '<div class="card" style="padding:0;overflow:hidden">'
+      + '<div class="fb" style="padding:14px 20px;border-bottom:1px solid var(--bor)">'
+      + '<h3>Found ' + results.length + ' competitor' + (results.length!==1?'s':'') + ' — ranked best match first</h3>'
+      + '</div>'
+      + '<div style="padding:0 20px">' + rows + '</div>'
+      + '</div>' : '');
+}
+
+// ── DISCOVER KEYWORD & SEED HELPERS ─────────────────────────────────────────
+async function discGenKeywords(cid) {
+  var keys = getKeys();
+  if (!keys.anthropic) { showToast('Add Anthropic API key in Settings first', 'warn'); return; }
+  var c = CLIENTS.find(function(x) { return x.id === cid; });
+  if (!c) return;
+  if (!APP.disc[cid]) APP.disc[cid] = {};
+  APP.disc[cid].generatingKws = true;
+  render();
+  try {
+    var prompt = 'You are a competitor research expert for a social media agency.\n'
+      + 'Generate 12 Instagram search keywords for finding competitor accounts for this client:\n'
+      + 'Niche: ' + c.niche + '\n'
+      + 'Target audience: ' + (c.target || 'not specified') + '\n'
+      + 'Content pillars: ' + (c.pillars || []).join(', ') + '\n\n'
+      + 'Return ONLY a JSON array of 12 short keyword phrases (2-4 words each) that would appear in a competitor Instagram bio or name.\n'
+      + 'No markdown, no explanation, just the JSON array.';
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': keys.anthropic, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 300, messages: [{ role: 'user', content: prompt }] })
+    });
+    var data = await res.json();
+    var text = (data && data.content && data.content[0] && data.content[0].text) || '[]';
+    text = text.trim();
+    if (text.startsWith('```')) { var pts = text.split('```'); text = pts[1] || pts[0]; if (text.startsWith('json')) text = text.slice(4); }
+    var kws = JSON.parse(text.trim());
+    APP.disc[cid].generatedKeywords = Array.isArray(kws) ? kws : [];
+    APP.disc[cid].generatingKws = false;
+    render();
+    showToast('Generated ' + kws.length + ' keywords');
+  } catch(err) {
+    APP.disc[cid].generatingKws = false;
+    render();
+    showToast('Error: ' + err.message, 'err');
+  }
+}
+
+function discAddKw(cid) {
+  var inp = document.getElementById('disc-kw-inp'); if (!inp) return;
+  var v = inp.value.trim(); if (!v) return;
+  if (!APP.disc[cid]) APP.disc[cid] = {};
+  if (!APP.disc[cid].manualKeywords) APP.disc[cid].manualKeywords = [];
+  if (APP.disc[cid].manualKeywords.indexOf(v) < 0) APP.disc[cid].manualKeywords.push(v);
+  inp.value = ''; render();
+  setTimeout(function() { var x = document.getElementById('disc-kw-inp'); if (x) x.focus(); }, 30);
+}
+
+function discRmKw(cid, kw) {
+  if (!APP.disc[cid]) return;
+  APP.disc[cid].generatedKeywords = (APP.disc[cid].generatedKeywords || []).filter(function(x) { return x !== kw; });
+  APP.disc[cid].manualKeywords = (APP.disc[cid].manualKeywords || []).filter(function(x) { return x !== kw; });
+  render();
+}
+
+function discAddSeed(cid) {
+  var inp = document.getElementById('disc-seed-inp'); if (!inp) return;
+  var v = inp.value.trim().replace('@','').toLowerCase(); if (!v) return;
+  if (!APP.disc[cid]) APP.disc[cid] = {};
+  if (!APP.disc[cid].seedUsers) APP.disc[cid].seedUsers = [];
+  if (APP.disc[cid].seedUsers.indexOf(v) < 0) APP.disc[cid].seedUsers.push(v);
+  inp.value = ''; render();
+  setTimeout(function() { var x = document.getElementById('disc-seed-inp'); if (x) x.focus(); }, 30);
+}
+
+function discRmSeed(cid, u) {
+  if (!APP.disc[cid]) return;
+  APP.disc[cid].seedUsers = (APP.disc[cid].seedUsers || []).filter(function(x) { return x !== u; });
+  render();
 }
 
 async function runDiscover(cid) {
   var keys = getKeys();
   if (!keys.apify) { showToast('Add your Apify API key in Settings first', 'warn'); return; }
   if (!APP.disc[cid]) APP.disc[cid] = {};
+  var allKws = (APP.disc[cid].generatedKeywords || []).concat(APP.disc[cid].manualKeywords || []);
+  if (allKws.length === 0) { showToast('Generate or add keywords first', 'warn'); return; }
   APP.disc[cid].running = true;
   APP.disc[cid].results = [];
   render();
@@ -897,201 +996,144 @@ async function realDiscover(cid, c, keys) {
   var accounts = {};
   var log = function(m, t) { APP.disc[cid].progress = m; render(); addLog(m, t); };
   var token = keys.apify;
+  var allKws = (APP.disc[cid].generatedKeywords || []).concat(APP.disc[cid].manualKeywords || [])
+    .filter(function(k, i, a) { return a.indexOf(k) === i; });
+  var seedUsers = APP.disc[cid].seedUsers || [];
 
-  // ── SOURCE 1: Apify hashtag scraper ───────────────────────────────────────
-  var hashtags = (c.hashtags || []).slice(0, 6);
-  for (var hi = 0; hi < hashtags.length; hi++) {
-    var tag = hashtags[hi];
-    log('Apify: scraping #' + tag + '...');
+  // SOURCE 1: Instagram profile search by keyword
+  log('Step 1: Searching Instagram profiles by keyword...');
+  for (var ki = 0; ki < Math.min(allKws.length, 8); ki++) {
+    var kw = allKws[ki];
+    log('Searching "' + kw + '"...');
     try {
-      var r1 = await fetch('https://api.apify.com/v2/acts/apify~instagram-hashtag-scraper/runs?token=' + token, {
+      var r1 = await fetch('https://api.apify.com/v2/acts/apify~instagram-search-scraper/runs?token=' + token, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ hashtags: [tag], resultsLimit: 50, addParentData: true })
+        body: JSON.stringify({ searchQuery: kw, searchType: 'accounts', maxItems: 20 })
       });
-      if (!r1.ok) { log('Hashtag #' + tag + ' failed', 'warn'); continue; }
+      if (!r1.ok) { log('Failed for "' + kw + '"', 'warn'); continue; }
       var d1 = await r1.json();
       var runId1 = d1 && d1.data && d1.data.id;
       if (!runId1) continue;
-      var dsId1 = await pollRun(runId1, token, log);
-      if (!dsId1) { log('#' + tag + ' timed out', 'warn'); continue; }
+      var dsId1 = await pollRun(runId1, token, null);
+      if (!dsId1) { log('"' + kw + '" timed out', 'warn'); continue; }
       var items1 = await (await fetch('https://api.apify.com/v2/datasets/' + dsId1 + '/items?token=' + token)).json();
       if (!Array.isArray(items1)) continue;
       for (var j = 0; j < items1.length; j++) {
-        var item = items1[j];
-        var u = item && item.ownerUsername;
+        var p = items1[j];
+        var u = p && (p.username || p.ownerUsername);
         if (!u || accounts[u]) continue;
-        var f = item.ownerFollowersCount || item.followersCount || 0;
-        // Only hard-filter if we actually have follower data
+        var f = p.followersCount || p.followersCount || 0;
         if (f > 0 && (f < 30000 || f > 1000000)) continue;
-        var likes = item.likesCount || 0;
-        var cmts = item.commentsCount || 0;
-        var eng = f > 0 ? ((likes + cmts) / f * 100) : 1.5;
-        if (eng > 25) continue;
-        accounts[u] = { username: u, followers: f, bio: item.ownerBio || '', fullName: item.ownerFullName || '', engagement: Math.round(eng * 100) / 100, source: 'hashtag' };
+        accounts[u] = {
+          username: u, followers: f,
+          bio: p.biography || p.bio || '',
+          fullName: p.fullName || p.name || '',
+          postCount: p.postsCount || p.mediaCount || 0,
+          source: 'keyword'
+        };
       }
-      log('Accounts collected so far: ' + Object.keys(accounts).length);
-    } catch (e) { log('Error on #' + tag + ': ' + e.message, 'warn'); }
+      log('Total accounts so far: ' + Object.keys(accounts).length);
+    } catch(e) { log('Error on "' + kw + '": ' + e.message, 'warn'); }
   }
 
-  // ── SOURCE 2: Apify profile/keyword search ────────────────────────────────
-  var keywords = (c.keywords || []).slice(0, 4);
-  for (var ki = 0; ki < keywords.length; ki++) {
-    var kw = keywords[ki];
-    log('Apify: profile search for "' + kw + '"...');
+  // SOURCE 2: Profile scraper for known seed competitors
+  if (seedUsers.length > 0) {
+    log('Step 2: Looking up known competitors and finding similar accounts...');
     try {
-      var r2 = await fetch('https://api.apify.com/v2/acts/apify~instagram-search-scraper/runs?token=' + token, {
+      var r2 = await fetch('https://api.apify.com/v2/acts/apify~instagram-profile-scraper/runs?token=' + token, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ searchQuery: kw, searchType: 'accounts', maxItems: 30 })
+        body: JSON.stringify({ usernames: seedUsers })
       });
-      if (!r2.ok) { log('Profile search unavailable for "' + kw + '"', 'warn'); continue; }
-      var d2 = await r2.json();
-      var runId2 = d2 && d2.data && d2.data.id;
-      if (!runId2) continue;
-      var dsId2 = await pollRun(runId2, token, log);
-      if (!dsId2) continue;
-      var items2 = await (await fetch('https://api.apify.com/v2/datasets/' + dsId2 + '/items?token=' + token)).json();
-      if (!Array.isArray(items2)) continue;
-      for (var k = 0; k < items2.length; k++) {
-        var p = items2[k];
-        var pu = p && (p.username || p.ownerUsername);
-        if (!pu || accounts[pu]) continue;
-        var pf = p.followersCount || p.ownerFollowersCount || 0;
-        if (pf > 0 && (pf < 30000 || pf > 1000000)) continue;
-        accounts[pu] = { username: pu, followers: pf, bio: p.biography || p.ownerBio || '', fullName: p.fullName || p.ownerFullName || '', engagement: 1.5, source: 'profile' };
-      }
-      log('Accounts collected so far: ' + Object.keys(accounts).length);
-    } catch (e) { log('Profile search error for "' + kw + '": ' + e.message, 'warn'); }
-  }
-
-  // ── SOURCE 3: SerpApi Google search ──────────────────────────────────────
-  if (keys.serpapi) {
-    log('Google: searching for Instagram accounts in niche...');
-    var searchTerms = [
-      'site:instagram.com ' + c.niche,
-      'instagram ' + (c.keywords || []).slice(0, 2).join(' OR ') + ' coach',
-    ];
-    for (var si = 0; si < searchTerms.length; si++) {
-      try {
-        var serpRes = await fetch('https://serpapi.com/search.json?q=' + encodeURIComponent(searchTerms[si]) + '&num=20&api_key=' + keys.serpapi);
-        if (!serpRes.ok) { log('SerpApi search failed', 'warn'); continue; }
-        var serpData = await serpRes.json();
-        var organicResults = (serpData && serpData.organic_results) || [];
-        var usernames = [];
-        for (var oi = 0; oi < organicResults.length; oi++) {
-          var link = organicResults[oi].link || '';
-          var match = link.match(/instagram\.com\/([A-Za-z0-9._]+)\/?/);
-          if (match && match[1] && match[1] !== 'p' && match[1] !== 'explore') {
-            usernames.push(match[1]);
-          }
-        }
-        log('Google found ' + usernames.length + ' Instagram usernames — verifying with Apify...');
-        // Verify Google-found usernames via Apify profile scraper
-        if (usernames.length > 0) {
-          var profileUrls = usernames.slice(0, 10).map(function(u) { return 'https://www.instagram.com/' + u + '/'; });
-          var r3 = await fetch('https://api.apify.com/v2/acts/apify~instagram-scraper/runs?token=' + token, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ directUrls: profileUrls, resultsType: 'details', resultsLimit: 10 })
-          });
-          if (r3.ok) {
-            var d3 = await r3.json();
-            var runId3 = d3 && d3.data && d3.data.id;
-            if (runId3) {
-              var dsId3 = await pollRun(runId3, token, log);
-              if (dsId3) {
-                var items3 = await (await fetch('https://api.apify.com/v2/datasets/' + dsId3 + '/items?token=' + token)).json();
-                if (Array.isArray(items3)) {
-                  for (var gi = 0; gi < items3.length; gi++) {
-                    var gp = items3[gi];
-                    var gu = gp && (gp.username || gp.ownerUsername);
-                    if (!gu || accounts[gu]) continue;
-                    var gf = gp.followersCount || gp.ownerFollowersCount || 0;
-                    if (gf < 30000 || gf > 1000000) continue;
-                    accounts[gu] = { username: gu, followers: gf, bio: gp.biography || gp.ownerBio || '', fullName: gp.fullName || gp.ownerFullName || '', engagement: 1.5, source: 'google' };
-                  }
-                }
+      if (r2.ok) {
+        var d2 = await r2.json();
+        var runId2 = d2 && d2.data && d2.data.id;
+        if (runId2) {
+          var dsId2 = await pollRun(runId2, token, null);
+          if (dsId2) {
+            var items2 = await (await fetch('https://api.apify.com/v2/datasets/' + dsId2 + '/items?token=' + token)).json();
+            if (Array.isArray(items2)) {
+              for (var si = 0; si < items2.length; si++) {
+                var sp = items2[si];
+                var su = sp && sp.username;
+                if (!su || accounts[su]) continue;
+                var sf = sp.followersCount || 0;
+                if (sf > 0 && (sf < 30000 || sf > 1000000)) continue;
+                accounts[su] = {
+                  username: su, followers: sf,
+                  bio: sp.biography || '',
+                  fullName: sp.fullName || '',
+                  postCount: sp.postsCount || 0,
+                  source: 'similar'
+                };
               }
             }
           }
         }
-        log('Total after Google search: ' + Object.keys(accounts).length);
-      } catch (e) { log('SerpApi error: ' + e.message, 'warn'); }
-    }
+      }
+      log('After seed lookup. Total: ' + Object.keys(accounts).length);
+    } catch(e) { log('Seed lookup error: ' + e.message, 'warn'); }
+  } else {
+    log('Step 2: Skipped (no seed competitors added)');
   }
 
-  // ── SCORE all accounts ────────────────────────────────────────────────────
+  // SCORE
   log('Scoring ' + Object.keys(accounts).length + ' accounts...');
 
   if (Object.keys(accounts).length === 0) {
     APP.disc[cid].running = false;
     APP.disc[cid].results = [];
     render();
-    showToast('No accounts found — try different hashtags or check Apify has credits', 'warn');
+    showToast('No accounts found — check Apify credits or try different keywords', 'warn');
     return;
   }
 
-  var kwList = [(c.niche || '').toLowerCase()]
+  var kwList = allKws.map(function(k) { return k.toLowerCase(); })
+    .concat([(c.niche || '').toLowerCase()])
     .concat((c.pillars || []).map(function(p) { return p.toLowerCase(); }))
-    .concat((c.keywords || []).map(function(k) { return k.toLowerCase(); }))
     .filter(function(k) { return k.length > 2; });
 
   var scored = Object.values(accounts).map(function(a) {
     var bio = (a.bio + ' ' + a.fullName).toLowerCase();
-
-    // Engagement score — 30 points
-    var eng = a.engagement || 1.5;
-    var es = eng >= 5 ? 30 : eng >= 3 ? 25 : eng >= 1.5 ? 18 : eng >= 0.8 ? 10 : 5;
-
-    // Bio keyword match — 25 points
     var bm = 0;
     kwList.forEach(function(kw) { if (bio.indexOf(kw) >= 0) bm += 5; });
-    bm = Math.min(bm, 25);
-
-    // Niche relevance — 25 points
-    var nicheWords = (c.niche || '').toLowerCase().split(' ').filter(function(w) { return w.length > 3; });
-    var nm = 0;
-    nicheWords.forEach(function(w) { if (bio.indexOf(w) >= 0) nm += 4; });
-    nm = Math.min(nm, 25);
-
-    // Follower sweet spot — 20 points
+    bm = Math.min(bm, 40);
+    var es = a.source === 'similar' ? 20 : 15;
     var f = a.followers;
-    var fs = 10; // default if no follower data
+    var fs = 10;
     if (f > 0) {
       fs = (f >= 50000 && f <= 500000) ? 20
          : (f >= 30000 && f < 50000)   ? 14
-         : (f > 500000 && f <= 750000)  ? 14
-         : (f > 750000 && f <= 1000000) ? 8
-         : 4;
+         : (f > 500000 && f <= 750000)  ? 12
+         : (f > 750000 && f <= 1000000) ? 8 : 4;
     }
-
-    var total = Math.min(Math.round(es + bm + nm + fs), 100);
+    var pc = a.postCount || 0;
+    var ps = pc >= 50 ? 10 : pc >= 20 ? 7 : pc >= 12 ? 4 : 0;
+    var total = Math.min(Math.round(bm + es + fs + ps), 100);
     return {
-      username: a.username,
-      followers: a.followers,
-      score: total,
-      engRate: eng.toFixed(2),
-      viral_posts: Math.max(1, Math.floor(eng / 2)),
-      best_views: Math.floor((a.followers || 10000) * eng / 100 * 8),
-      source: a.source || 'hashtag'
+      username: a.username, followers: a.followers,
+      bio: a.bio, postCount: a.postCount,
+      score: total, engRate: null,
+      viral_posts: 0, best_views: 0, source: a.source
     };
   })
-  .filter(function(a) { return a.score >= 20; })           // lowered threshold to 20
+  .filter(function(a) { return a.score >= 20; })
   .sort(function(a, b) { return b.score - a.score; })
-  .slice(0, 100);
+  .slice(0, 30);
 
   APP.disc[cid].running = false;
   APP.disc[cid].results = scored;
   render();
 
-  var msg = scored.length >= 25
+  var msg = scored.length >= 10
     ? 'Found ' + scored.length + ' competitors — ranked best match first'
     : scored.length > 0
-    ? 'Found ' + scored.length + ' matches — try more hashtags/keywords for a larger list'
-    : 'Accounts were found but none scored high enough — try broader hashtags';
+    ? 'Found ' + scored.length + ' — add more keywords for a larger list'
+    : 'No results — try broader keywords';
   showToast(msg, scored.length > 0 ? 'ok' : 'warn');
 }
+
 
 async function pollRun(runId, token, log) {
   for (var i = 0; i < 60; i++) {
